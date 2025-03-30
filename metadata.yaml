@@ -1,0 +1,5 @@
+homepage: "https://www.floriangoetting.de"
+documentation: "https://github.com/floriangoetting/json-client"
+versions:
+  - sha: xxx
+    changeNotes: first commit
