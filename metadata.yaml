@@ -1,7 +1,7 @@
 homepage: "https://www.floriangoetting.de"
 documentation: "https://github.com/floriangoetting/json-client"
 versions:
-  - sha: xxx
+  - sha: 0218e283bcb4f1f4cff69fafd0591c38f1162306
     changeNotes: Support for sending tag responses to client
   - sha: 01a3d977f5452fe4b1a6344ae82fc221d53c5d93
     changeNotes: first commit
