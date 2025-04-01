@@ -50,7 +50,7 @@ If your Tagging Server is served from a different domain or subdomain, you will 
 ### Allowed Origins
 Please enter a valid RegEx here to validate the origin. If the RegEx is not matched, the request will not be claimed. If you do not want to validate the origin, just leave the default value of "*".
 
-## Sending Data from Tags in the JSON Client Response
+## Sending Data from Server Tags in the JSON Client Response
 JSON Client is capable to receive message data from Server Tags and sends the data in the response. The JSON Tag is then including this data in the Data Layer Push as well which makes it available to be used in the client-side Google Tag Manager.
 
 If you want to use this feature, you would need to update the Template Code of the Server Tag where you want to send data from. Please note that when updating a Tag Template, you won't receive automatic updates of the Tag Template anymore from the Template Gallery.
@@ -75,3 +75,16 @@ Example:
    ```
 4. Update the Uses messages permission and set it to "Any".
 5. Save the Template and test if it works as expected.
+
+## Support for Native Apps and App Webviews
+There is no native SDK or direct support for the mobile client-side GTM for JSON Tags. However, it is possible to generate JSON payloads in a native app and send the data to the JSON Client endpoint in server-side GTM.
+
+### Handling of Origin Headers
+It is not an issue that requests from native apps do not contain an Origin header. If the JSON Client does not find an Origin in the request, the validation will automatically pass without any checks.
+
+### Managing Device and Session IDs in Native Apps
+Since native apps do not support cookies, a custom mechanism must be implemented to persist the device and session ID. If these IDs are already set natively, they should be included in the request headers as cookies, using the same names configured in the JSON Client. The JSON Client will then use these IDs instead of generating new ones.
+
+### Support for App Webviews
+The behavior in app webviews is similar:
+When a native app opens a webview, the device and session cookies must be injected into the webview using the same cookie names configured in the JSON Client. This ensures that the JSON Client recognizes and uses the existing IDs instead of creating new ones.
