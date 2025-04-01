@@ -34,7 +34,7 @@ ___TEMPLATE_PARAMETERS___
     "type": "GROUP",
     "name": "clientSettings",
     "displayName": "Client Settings",
-    "groupStyle": "NO_ZIPPY",
+    "groupStyle": "ZIPPY_OPEN",
     "subParams": [
       {
         "type": "TEXT",
@@ -231,7 +231,7 @@ ___TEMPLATE_PARAMETERS___
     "type": "GROUP",
     "name": "corsSettings",
     "displayName": "CORS Settings",
-    "groupStyle": "NO_ZIPPY",
+    "groupStyle": "ZIPPY_OPEN",
     "subParams": [
       {
         "type": "CHECKBOX",
@@ -285,6 +285,7 @@ const getType = require('getType');
 const parseUrl = require('parseUrl');
 const createRegex = require('createRegex');
 const testRegex = require('testRegex');
+const addMessageListener = require('addMessageListener');
 
 const requestParams = getRequestQueryParameters();
 const origin = getRequestHeader('origin') || (!!getRequestHeader('referer') && parseUrl(getRequestHeader('referer')).origin) || requestParams.origin;
@@ -310,10 +311,6 @@ const payloadToEvent = (payload) => {
   if (getType(event) === 'object' && getType(event.data) === 'array') {
     return { events: event.data };
   }
-  return event;
-};
-
-const mapEventToTagEvent = (event, data) => {
   return event;
 };
 
@@ -375,7 +372,7 @@ let setOrUpdateCookie = (cookieName, domain, cookiePath, cookieSecure, cookieHtt
     return cookieValue;
 };
 
-const sendResponse = (statusCode, body, headers) => {
+const sendResponse = (statusCode) => {
   // Prevent CORS errors
   if (data.enableCors) {
     setResponseHeader('Access-Control-Allow-Origin', origin);
@@ -388,8 +385,16 @@ const sendResponse = (statusCode, body, headers) => {
   }
   setResponseHeader('Content-Type', 'application/json;charset=UTF-8');
   setResponseStatus(statusCode || 200);
-  if (body) setResponseBody(body);
-  if (headers) Object.keys(headers).forEach((k) => {setResponseHeader(k, headers[k]);});
+  
+  //set response body
+  if(statusCode == 200){
+    if (Object.keys(responseData).length === 0) {
+      setResponseBody(JSON.stringify({ status: 'ok' })); 
+    } else {
+      setResponseBody(JSON.stringify(responseData));
+    }
+  }
+  
   returnResponse();
 };
 
@@ -403,7 +408,7 @@ if (requestPath === data.requestPath) {
   
   claimRequest();
   
-  let responseBody, event;
+  let event;
   const domain = data.cookieDomain;
   const cookiePath = data.cookiePath;
   const cookieSecure = data.cookieSecure;
@@ -426,17 +431,20 @@ if (requestPath === data.requestPath) {
     }
     //add common event data
     event = addCommonEventData(event, deviceIdCookieValue, sessionIdCookieValue);
-    //prepare response
-    if (Object.keys(responseData).length === 0) {
-      responseBody = JSON.stringify({ status: 'ok' }); 
-    } else {
-      responseBody = JSON.stringify(responseData);
-    }
     //run mapping
     if (event) {
-      runContainer(mapEventToTagEvent(event, data), () => {
-        //send response
-        sendResponse(200, responseBody);
+      runContainer(event, /* onComplete= */ () => sendResponse(200), /* onStart= */ (bindToEvent) => {
+        bindToEvent(addMessageListener)('send_response', (messageType, message) => {
+          if (!responseData.tags) {
+            responseData.tags = {};
+          }
+          
+          const keys = Object.keys(message);
+          if (keys.length > 0) {
+            const tag = keys[0];
+            responseData.tags[tag] = message[tag];
+          }
+        });
       });
     }
   } else if (requestMethod === 'OPTIONS') {
@@ -633,6 +641,27 @@ ___SERVER_PERMISSIONS___
                 ]
               }
             ]
+          }
+        }
+      ]
+    },
+    "clientAnnotations": {
+      "isEditedByUser": true
+    },
+    "isRequired": true
+  },
+  {
+    "instance": {
+      "key": {
+        "publicId": "use_message",
+        "versionId": "1"
+      },
+      "param": [
+        {
+          "key": "allowedActions",
+          "value": {
+            "type": 1,
+            "string": "any"
           }
         }
       ]
