@@ -49,3 +49,29 @@ If your Tagging Server is served from a different domain or subdomain, you will 
 
 ### Allowed Origins
 Please enter a valid RegEx here to validate the origin. If the RegEx is not matched, the request will not be claimed. If you do not want to validate the origin, just leave the default value of "*".
+
+## Sending Data from Tags in the JSON Client Response
+JSON Client is capable to receive message data from Server Tags and sends the data in the response. The JSON Tag is then including this data in the Data Layer Push as well which makes it available to be used in the client-side Google Tag Manager.
+
+If you want to use this feature, you would need to update the Template Code of the Server Tag where you want to send data from. Please note that when updating a Tag Template, you won't receive automatic updates of the Tag Template anymore from the Template Gallery.
+
+If you want to proceed with this anyway, you need to follow these steps:
+1. Open the Code Editor of the Tag Template which you want to modify.
+2. Require the send Message library with this line of code:
+
+   ```javascript
+   const sendMessage = require('sendMessage');
+   ```
+3. Use the sendMessage Api with the message Type 'send_response' and as message, set an object with a parent key which should be the Name of the Tag. In this Example, it is an Amplitude Tag so the parent key is set to "amplitude".
+Example:
+
+   ```javascript
+    //return response to JSON Client
+    sendMessage('send_response', {
+      amplitude: {
+        api_key: apiKey
+      }
+    });
+   ```
+4. Update the Uses messages permission and set it to "Any".
+5. Save the Template and test if it works as expected.
