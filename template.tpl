@@ -238,7 +238,7 @@ ___TEMPLATE_PARAMETERS___
         "name": "enableCors",
         "checkboxText": "Enable CORS Headers",
         "simpleValueType": true,
-        "help": "If your Tagging Server is served from a different domain or subdomain, you will need to configure the CORS Headers to make sure that the requests are not blocked.",
+        "help": "If your Tagging Server is served from a different domain or subdomain, you will need to configure the CORS Headers to make sure that the requests are not blocked. Please note that the CORS Headers will not work until you publish the ssGTM Container the first time with the setting enabled. You will also need to clear the browser cache and cookies after you published the ssGTM Container.",
         "defaultValue": false
       },
       {
