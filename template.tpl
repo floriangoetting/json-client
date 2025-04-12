@@ -82,7 +82,32 @@ ___TEMPLATE_PARAMETERS___
             "type": "EQUALS"
           }
         ],
-        "defaultValue": "fp_device_id"
+        "defaultValue": "fp_device_id",
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ]
+      },
+      {
+        "type": "TEXT",
+        "name": "deviceIdCookieLifetime",
+        "displayName": "Device ID Cookie Lifetime (Days)",
+        "simpleValueType": true,
+        "defaultValue": 400,
+        "help": "You can customize the number of days here how long you want the Device ID Cookie to live. The default value 400 is the maximum number of days for a cookie to live which is supported by Google Chrome.",
+        "enablingConditions": [
+          {
+            "paramName": "setDeviceIdCookie",
+            "paramValue": true,
+            "type": "EQUALS"
+          }
+        ],
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ]
       },
       {
         "type": "CHECKBOX",
@@ -103,7 +128,32 @@ ___TEMPLATE_PARAMETERS___
             "type": "EQUALS"
           }
         ],
-        "defaultValue": "fp_session_id"
+        "defaultValue": "fp_session_id",
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ]
+      },
+      {
+        "type": "TEXT",
+        "name": "sessionIdCookieLifetime",
+        "displayName": "Session ID Cookie Lifetime (Minutes)",
+        "simpleValueType": true,
+        "defaultValue": 30,
+        "help": "You can customize the number of minutes here how long you want the Session ID Cookie to live. With the default value of 30 minutes, the Session ID Cookie will be deleted and recreated if the visitor comes back to the site after 30 minutes of inactivity. If the visitor continues to browse through the site, the Session Cookie lifetime will be reset to the number of minutes again to retain the session.",
+        "enablingConditions": [
+          {
+            "paramName": "setSessionIdCookie",
+            "paramValue": true,
+            "type": "EQUALS"
+          }
+        ],
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ]
       },
       {
         "type": "TEXT",
@@ -255,19 +305,56 @@ ___TEMPLATE_PARAMETERS___
         ]
       }
     ]
+  },
+  {
+    "type": "GROUP",
+    "name": "monitoringSettings",
+    "displayName": "Monitoring Settings",
+    "groupStyle": "ZIPPY_OPEN",
+    "subParams": [
+      {
+        "type": "CHECKBOX",
+        "name": "enableFailureEvent",
+        "checkboxText": "Enable Failure Event",
+        "simpleValueType": true,
+        "defaultValue": false,
+        "help": "When this option is activated, the JSON Client will listen for failed tags and will create a failure event when at least one of the tags failed. You can send additional data like the request and response from the tags to the JSON Client which will be included in the event. For more information about this, please check the documentation in Github: https://github.com/floriangoetting/json-client."
+      },
+      {
+        "type": "TEXT",
+        "name": "failureEventName",
+        "displayName": "Failure Event Name",
+        "simpleValueType": true,
+        "help": "You can customize the name of the failure event here. The default event name is \"tag_failure\".",
+        "defaultValue": "tag_failure",
+        "enablingConditions": [
+          {
+            "paramName": "enableFailureEvent",
+            "paramValue": true,
+            "type": "EQUALS"
+          }
+        ],
+        "valueValidators": [
+          {
+            "type": "NON_EMPTY"
+          }
+        ]
+      }
+    ]
   }
 ]
 
 
 ___SANDBOXED_JS_FOR_SERVER___
 
-let responseData = {};
 const setCookie = require('setCookie');
 const getCookieValues = require('getCookieValues');
 const makeString = require('makeString');
+const makeInteger = require('makeInteger');
 const claimRequest = require('claimRequest');
 const returnResponse = require('returnResponse');
 const getRequestBody = require('getRequestBody');
+const addEventCallback = require('addEventCallback');
 const runContainer = require('runContainer');
 const setResponseHeader = require('setResponseHeader');
 const setResponseStatus = require('setResponseStatus');
@@ -292,6 +379,9 @@ const origin = getRequestHeader('origin') || (!!getRequestHeader('referer') && p
 const UA = getRequestHeader('user-agent');
 const HOST = getRequestHeader('host');
 const ip = require('getRemoteAddress')();
+
+let responseData = {};
+let monitorData = false;
 
 const log = msg => {
   logToConsole('[JSON Client] ' + msg);
@@ -415,7 +505,9 @@ if (requestPath === data.requestPath) {
   const cookieHttpOnly = data.cookieHttpOnly;
   const cookieSameSite = data.cookieSameSite;
   const deviceIdCookieName = data.deviceIdCookieName;
+  const deviceIdCookieLifetime = data.deviceIdCookieLifetime;
   const sessionIdCookieName = data.sessionIdCookieName;
+  const sessionIdCookieLifetime = data.sessionIdCookieLifetime;
   let deviceIdCookieValue = false;
   let sessionIdCookieValue = false;
   //handle the various request methods
@@ -424,16 +516,53 @@ if (requestPath === data.requestPath) {
     event = payloadToEvent(getRequestBody());
     //set device and session cookies
     if(data.setDeviceIdCookie){
-      deviceIdCookieValue = setOrUpdateCookie(deviceIdCookieName, domain, cookiePath, cookieSecure, cookieHttpOnly, cookieSameSite, 400 * 24 * 60 * 60, generateUUIDv4(), 'device_id');
+      deviceIdCookieValue = setOrUpdateCookie(deviceIdCookieName, domain, cookiePath, cookieSecure, cookieHttpOnly, cookieSameSite, makeInteger(deviceIdCookieLifetime) * 24 * 60 * 60, generateUUIDv4(), 'device_id');
     }
   if(data.setSessionIdCookie){
-      sessionIdCookieValue = setOrUpdateCookie(sessionIdCookieName, domain, cookiePath, cookieSecure, cookieHttpOnly, cookieSameSite, 30 * 60, makeString(getTimestamp()), 'session_id');
+      sessionIdCookieValue = setOrUpdateCookie(sessionIdCookieName, domain, cookiePath, cookieSecure, cookieHttpOnly, cookieSameSite, makeInteger(sessionIdCookieLifetime) * 60, makeString(getTimestamp()), 'session_id');
     }
     //add common event data
     event = addCommonEventData(event, deviceIdCookieValue, sessionIdCookieValue);
     //run mapping
     if (event) {
-      runContainer(event, /* onComplete= */ () => sendResponse(200), /* onStart= */ (bindToEvent) => {
+      runContainer(event,
+      /* onComplete= */ (bindToEvent) => {
+        sendResponse(200);
+        if(data.enableFailureEvent){
+          // server monitor failure event
+          if(event.event_name !== data.failureEventName){
+            bindToEvent(addEventCallback)((containerId, eventData) => {
+              const tagData = [{
+                // Exclude tags that have the "exclude" metadata set to true
+                tag: eventData.tags.filter(tag => tag.exclude !== 'true').map(tag => ({
+                  id: tag.id,
+                  name: tag.name,
+                  status: tag.status,
+                  execution_time: tag.executionTime
+                }))
+              }];
+              // find any tag with "failure" status
+              const fTags = eventData.tags.filter( tag => tag.status === 'failure' );
+              if( fTags.length > 0 ){
+                // call runContainer with error event
+                let monitorEvent = event;
+                monitorEvent.event_name = data.failureEventName;
+                monitorEvent.monitor = {};
+                monitorEvent.monitor.failed_tags = fTags;
+                if(monitorData){
+                  monitorEvent.monitor.services = monitorData;
+                }
+                runContainer(monitorEvent, /* onComplete= */ () => {
+                  //log('Monitor Event Fired' + JSON.stringify(eventData));
+                });
+              } else {
+                //log( 'OK! All tags have succeeded!' );
+              }
+            });
+          }
+        }
+      }, /* onStart= */ (bindToEvent) => {
+        //listener for tag data for response
         bindToEvent(addMessageListener)('send_response', (messageType, message) => {
           if (!responseData.tags) {
             responseData.tags = {};
@@ -445,6 +574,16 @@ if (requestPath === data.requestPath) {
             responseData.tags[tag] = message[tag];
           }
         });
+        if(data.enableFailureEvent){
+          //listener for monitor data
+          bindToEvent(addMessageListener)('server_monitor', (messageType, message) => {
+            if(!monitorData){
+              monitorData = [];
+            }
+
+            monitorData.push(message);
+          });
+        }
       });
     }
   } else if (requestMethod === 'OPTIONS') {
@@ -668,6 +807,16 @@ ___SERVER_PERMISSIONS___
     },
     "clientAnnotations": {
       "isEditedByUser": true
+    },
+    "isRequired": true
+  },
+  {
+    "instance": {
+      "key": {
+        "publicId": "read_event_metadata",
+        "versionId": "1"
+      },
+      "param": []
     },
     "isRequired": true
   }
