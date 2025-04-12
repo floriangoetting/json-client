@@ -83,7 +83,7 @@ Example:
     });
    ````
 4. Update the Uses messages permission and set it to "Any".
-5. If you now produce a tag failure by for example using some invalid field values, you should see the Tag Failure Event firing in the ssGTM Preview Mode. An object called "monitor" will contain the information of the failed tags and your custom data sent via sendMessage. You can track the data with the tool of your choice.
+5. If you now produce a tag failure by for example using some invalid field values, you should see the Tag Failure Event firing in the ssGTM Preview Mode. An object called "monitor" will contain the information of the failed tags and your custom data sent via sendMessage. You can track the data with the tag of your choice.
 
 ## Sending Data from Server Tags in the JSON Client Response
 JSON Client is capable to receive message data from Server Tags and sends the data in the response. The JSON Tag is then including this data in the Data Layer Push as well which makes it available to be used in the client-side Google Tag Manager.
