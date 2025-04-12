@@ -23,11 +23,17 @@ If this option is enabled, a UUID v4 will be generated and will set a server-sid
 ### Device ID Cookie Name
 In this field you can specify the name of your server-side Device ID cookie.
 
+### Device ID Cookie Lifetime (Days)
+You can customize the number of days here how long you want the Device ID Cookie to live. The default value 400 is the maximum number of days for a cookie to live which is supported by Google Chrome.
+
 ### Set Session ID Cookie
 If this option is enabled, a unix timestamp in milliseconds will be generated and will set a server-side Cookie with the configured settings. This can be used to identify the session of a visitor.
 
 ### Session ID Cookie Name
 In this field you can specify the name of your server-side Session ID cookie.
+
+### Session ID Cookie Lifetime (Minutes)
+You can customize the number of minutes here how long you want the Session ID Cookie to live. With the default value of 30 minutes, the Session ID Cookie will be deleted and recreated if the visitor comes back to the site after 30 minutes of inactivity. If the visitor continues to browse through the site, the Session Cookie lifetime will be reset to the number of minutes again to retain the session.
 
 ### Cookie Domain
 The Domain on which you want to set your server-side Cookies. Usually this will be .yourdomain.com to include subdomains as well. If you leave the default value "auto" it will be automatically detected as the eTLD+1 of the first header found in the following priority order: 1. 'Forwarded', 2. 'X-Forwarded-Host', 3. 'Host'.
@@ -49,6 +55,35 @@ If your Tagging Server is served from a different domain or subdomain, you will 
 
 ### Allowed Origins
 Please enter a valid RegEx here to validate the origin. If the RegEx is not matched, the request will not be claimed. If you do not want to validate the origin, just leave the default value of "*".
+
+### Enable Failure Event
+When this option is activated, the JSON Client will listen for failed tags and will create a failure event when at least one of the tags failed. You can send additional data like the request and response from the tags to the JSON Client which will be included in the event. For more details about this please check the section "How to get a more detailed Failure Event".
+
+### Failure Event Name
+You can customize the name of the failure event here. The default event name is "tag_failure".
+
+## How to get a more detailed Failure Event
+If you enable the Failure Event, the first step you should do afterwards is to enable the Additional Tag Metadata in your Server Tags. This will enable you to identify the actual tag which failed. To do this, go to each Server Tag Configuration and search for the section "Additional Tag Metadata". Activate the option "Include tag name" and just enter "name" in the "Key for tag name". Now you will see the Name of the tag in the Failure Event in case the tag failed.
+
+For a more detailed Failure Event, you can also send any information from the Server Tag to JSON Client in case a failure has been detected. You can use this for example to send the response from the Server Tag to JSON Client in case of a failure and you will have much more actionable insights to provide a fix. If you want to use this feature, you would need to update the Template Code of the Server Tag where you want to send data from. Please note that when updating a Tag Template, you won't receive automatic updates of the Tag Template anymore from the Template Gallery. If you want to proceed with this anyway, you need to follow these steps:
+1. Open the Code Editor of the Tag Template which you want to modify.
+2. Require the send Message library with this line of code:
+
+   ```javascript
+   const sendMessage = require('sendMessage');
+   ```
+3. Use the sendMessage Api with the message Type 'server_monitor' and as message set an object with an attribute 'service' with an identifier of the tag and set any additional attributes which you want to measure in the Failure Event.
+Example:
+
+   ```javascript
+   sendMessage('server_monitor', {
+      'service': 'amplitude',
+      'request': postBody,
+      'response': JSON.parse(responseBody)
+    });
+   ````
+4. Update the Uses messages permission and set it to "Any".
+5. If you now produce a tag failure by for example using some invalid field values, you should see the Tag Failure Event firing in the ssGTM Preview Mode. An object called "monitor" will contain the information of the failed tags and your custom data sent via sendMessage. You can track the data with the tool of your choice.
 
 ## Sending Data from Server Tags in the JSON Client Response
 JSON Client is capable to receive message data from Server Tags and sends the data in the response. The JSON Tag is then including this data in the Data Layer Push as well which makes it available to be used in the client-side Google Tag Manager.
