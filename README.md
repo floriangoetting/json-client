@@ -4,15 +4,20 @@
 
 The JSON Client receives JSON Payloads and makes the data available in the Event Data. The built-in ID Service creates long lasting server-side set (HTTP-Only) cookies for visitor identification.
 
-## Usage and Configuration Options
+## How to install this Template
 1. Download the template.tpl from this GitHub Repository
 2. Go to the Templates Section in your server-side GTM Instance
 3. In the Client Templates Section click on "New"
 4. Select "Import" in the three dots menu at the top right
 5. Select the Downloaded template.tpl file and save the Template
 6. Close the Template Editor and go to the Clients Section
-7. Create a new Client and select the "JSON Client" as client type
-8. Configure the JSON Client according to your needs and save it
+
+Please keep in mind that this Template is not part of the Community Template Gallery, so you will need to get the latest state again if there is a new version of the template.
+
+## Usage and Configuration Options
+After you added this Template to your container, you can create a new Client with it. In the Clients Section click on "New". Then you need to choose "JSON Client" as the Client Type.
+
+Configure the JSON Client according to your needs and save it.
 
 ### Request Path
 Please define the Path under which you want the Endpoint to be available. This path needs to match the path which is configured in the JSON Tag Variable in the client-side GTM (See: https://github.com/floriangoetting/json-tag-variable?tab=readme-ov-file#endpoint-path).
