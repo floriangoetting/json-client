@@ -128,3 +128,20 @@ Since native apps do not support cookies, a custom mechanism must be implemented
 ### Support for App Webviews
 The behavior in app webviews is similar:
 When a native app opens a webview, the device and session cookies must be injected into the webview using the same cookie names configured in the JSON Client. This ensures that the JSON Client recognizes and uses the existing IDs instead of creating new ones.
+
+## How to contribute to the Template
+Contributions to any of the Templates are highly welcome! The process to contribute works like this:
+
+1. Fork the repository
+2. Pull and merge all updates from the main repository
+3. Make your adjustments to the files locally
+4. Test the Templates with your changes in GTM and ssGTM
+5. If you updated a template.tpl file, please do not replace the full original template.tpl file but only the part from "___TEMPLATE_PARAMETERS___" to the end of the file.
+6. Create small commits with good comments to make it easy to follow your adjustments
+7. Push the Commits
+8. Create a new pull request for the main repository including an understandable summary of your changes
+
+I will review the pull request and will provide feedback or questions if something is unclear. If everything is fine, your changes will be merged with the main repository and you will be listed in the list of contributors!
+If you want to contribute but you don't know which adjustments make sense, please check the list of issues (https://github.com/floriangoetting/json-client/issues), where I and others will list feature wishes or bug reportings.
+
+Please note that it is not planned to support GA4 as destination Analytics Tool. If you want to use GA4 or contribute to a project for first party tracking with GA4 support, please check out Stapes Data Client (https://github.com/stape-io/data-client).
