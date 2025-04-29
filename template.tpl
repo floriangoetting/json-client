@@ -61,7 +61,7 @@ ___TEMPLATE_PARAMETERS___
     "type": "GROUP",
     "name": "cookieSettings",
     "displayName": "Cookie Settings",
-    "groupStyle": "ZIPPY_OPEN",
+    "groupStyle": "ZIPPY_CLOSED",
     "subParams": [
       {
         "type": "CHECKBOX",
@@ -281,7 +281,7 @@ ___TEMPLATE_PARAMETERS___
     "type": "GROUP",
     "name": "corsSettings",
     "displayName": "CORS Settings",
-    "groupStyle": "ZIPPY_OPEN",
+    "groupStyle": "ZIPPY_CLOSED",
     "subParams": [
       {
         "type": "CHECKBOX",
@@ -310,26 +310,40 @@ ___TEMPLATE_PARAMETERS___
     "type": "GROUP",
     "name": "monitoringSettings",
     "displayName": "Monitoring Settings",
-    "groupStyle": "ZIPPY_OPEN",
+    "groupStyle": "ZIPPY_CLOSED",
     "subParams": [
       {
         "type": "CHECKBOX",
-        "name": "enableFailureEvent",
-        "checkboxText": "Enable Failure Event",
+        "name": "monitorFailedTags",
+        "checkboxText": "Monitor Failed Tags",
+        "simpleValueType": true,
+        "help": "When this option is activated, the JSON Client will listen for failed tags and will create a monitor event when at least one of the tags failed. You can send additional data like the request and response from the tags to the JSON Client which will be included in the event. For more information about this, please check the documentation in Github: https://github.com/floriangoetting/json-client.",
+        "defaultValue": false
+      },
+      {
+        "type": "CHECKBOX",
+        "name": "monitorSuccessfulTags",
+        "checkboxText": "Monitor Successful Tags",
         "simpleValueType": true,
         "defaultValue": false,
-        "help": "When this option is activated, the JSON Client will listen for failed tags and will create a failure event when at least one of the tags failed. You can send additional data like the request and response from the tags to the JSON Client which will be included in the event. For more information about this, please check the documentation in Github: https://github.com/floriangoetting/json-client."
+        "help": "When this option is activated, the JSON Client will listen for successful tags and will create a monitor event when at least one of the tags suceeded. You can send additional data like the request and response from the tags to the JSON Client which will be included in the event. For more information about this, please check the documentation in Github: https://github.com/floriangoetting/json-client.",
+        "subParams": []
       },
       {
         "type": "TEXT",
-        "name": "failureEventName",
-        "displayName": "Failure Event Name",
+        "name": "monitorEventName",
+        "displayName": "Monitor Event Name",
         "simpleValueType": true,
-        "help": "You can customize the name of the failure event here. The default event name is \"tag_failure\".",
-        "defaultValue": "tag_failure",
+        "help": "You can customize the name of the monitor event here. The default event name is \"server_monitor\".",
+        "defaultValue": "server_monitor",
         "enablingConditions": [
           {
-            "paramName": "enableFailureEvent",
+            "paramName": "monitorFailedTags",
+            "paramValue": true,
+            "type": "EQUALS"
+          },
+          {
+            "paramName": "monitorSuccessfulTags",
             "paramValue": true,
             "type": "EQUALS"
           }
@@ -337,6 +351,41 @@ ___TEMPLATE_PARAMETERS___
         "valueValidators": [
           {
             "type": "NON_EMPTY"
+          }
+        ]
+      },
+      {
+        "type": "SELECT",
+        "name": "sendMonitorEventWithoutCustomData",
+        "displayName": "Send Monitor Event also if no custom Monitor Data is provided",
+        "macrosInSelect": false,
+        "selectItems": [
+          {
+            "value": "onlyFailedTags",
+            "displayValue": "Only Failed Tags"
+          },
+          {
+            "value": "onlySuccessfulTags",
+            "displayValue": "Only Successful Tags"
+          },
+          {
+            "value": "failedAndSuccessfulTags",
+            "displayValue": "Failed and Successful Tags"
+          }
+        ],
+        "simpleValueType": true,
+        "defaultValue": "onlyFailedTags",
+        "help": "You can specify here, if the Monitoring Event should be sent as well if no custom Monitor had been provided through the send message \"server_monitor\" API Call from your server tags.\n\nSee https://github.com/floriangoetting/json-client/tree/main for more details about this feature.",
+        "enablingConditions": [
+          {
+            "paramName": "monitorFailedTags",
+            "paramValue": true,
+            "type": "EQUALS"
+          },
+          {
+            "paramName": "monitorSuccessfulTags",
+            "paramValue": true,
+            "type": "EQUALS"
           }
         ]
       }
@@ -528,38 +577,41 @@ if (requestPath === data.requestPath) {
       runContainer(event,
       /* onComplete= */ (bindToEvent) => {
         sendResponse(200);
-        if(data.enableFailureEvent){
-          // server monitor failure event
-          if(event.event_name !== data.failureEventName){
-            bindToEvent(addEventCallback)((containerId, eventData) => {
-              const tagData = [{
-                // Exclude tags that have the "exclude" metadata set to true
-                tag: eventData.tags.filter(tag => tag.exclude !== 'true').map(tag => ({
-                  id: tag.id,
-                  name: tag.name,
-                  status: tag.status,
-                  execution_time: tag.executionTime
-                }))
-              }];
-              // find any tag with "failure" status
-              const fTags = eventData.tags.filter( tag => tag.status === 'failure' );
-              if( fTags.length > 0 ){
-                // call runContainer with error event
-                let monitorEvent = event;
-                monitorEvent.event_name = data.failureEventName;
-                monitorEvent.monitor = {};
+        //server monitor event
+        if ((data.monitorFailedTags || data.monitorSuccessfulTags) && event.event_name !== data.monitorEventName) {
+          bindToEvent(addEventCallback)((containerId, eventData) => {
+            const tags = eventData.tags.filter(tag => tag.exclude !== 'true');
+            const fTags = tags.filter(tag => tag.status === 'failure');
+            const sTags = tags.filter(tag => tag.status === 'success');
+            
+            const sendEventWithoutCustomData = data.sendMonitorEventWithoutCustomData;
+            const customMonitorDataCheckFailures = !monitorData && sendEventWithoutCustomData == 'onlySuccessfulTags' ? false : true;
+            const shouldMonitorFailures = data.monitorFailedTags && fTags.length > 0 && customMonitorDataCheckFailures;
+            const customMonitorDataCheckSuccesses = !monitorData && sendEventWithoutCustomData == 'onlyFailedTags' ? false : true;
+            const shouldMonitorSuccesses = data.monitorSuccessfulTags && sTags.length > 0 && customMonitorDataCheckSuccesses;
+
+            if (shouldMonitorFailures || shouldMonitorSuccesses) {
+              const monitorEvent = event;
+              monitorEvent.event_name = data.monitorEventName;
+              monitorEvent.monitor = {};
+
+              if (data.monitorFailedTags && fTags.length > 0) {
                 monitorEvent.monitor.failed_tags = fTags;
-                if(monitorData){
-                  monitorEvent.monitor.services = monitorData;
-                }
-                runContainer(monitorEvent, /* onComplete= */ () => {
-                  //log('Monitor Event Fired' + JSON.stringify(eventData));
-                });
-              } else {
-                //log( 'OK! All tags have succeeded!' );
               }
-            });
-          }
+              if (data.monitorSuccessfulTags && sTags.length > 0) {
+                monitorEvent.monitor.successful_tags = sTags;
+              }
+              if (monitorData) {
+                monitorEvent.monitor.services = monitorData;
+              }
+
+              runContainer(monitorEvent, () => {
+                // log('Monitor Event Fired:', monitorEvent);
+              });
+            } else {
+              // log('No monitor event fired – no relevant tags.');
+            }
+          });
         }
       }, /* onStart= */ (bindToEvent) => {
         //listener for tag data for response
@@ -574,7 +626,7 @@ if (requestPath === data.requestPath) {
             responseData.tags[tag] = message[tag];
           }
         });
-        if(data.enableFailureEvent){
+        if(data.monitorFailedTags || data.monitorSuccessfulTags){
           //listener for monitor data
           bindToEvent(addMessageListener)('server_monitor', (messageType, message) => {
             if(!monitorData){
