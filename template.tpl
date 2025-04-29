@@ -375,7 +375,7 @@ ___TEMPLATE_PARAMETERS___
         ],
         "simpleValueType": true,
         "defaultValue": "onlyFailedTags",
-        "help": "You can specify here, if the Monitoring Event should be sent as well if no custom Monitor had been provided through the send message \"server_monitor\" API Call from your server tags.\n\nSee https://github.com/floriangoetting/json-client/tree/main for more details about this feature.",
+        "help": "You can specify here, if the Monitoring Event should be sent as well if no custom Monitor Data had been provided through the send message \"server_monitor\" API Call from your server tags.\n\nSee https://github.com/floriangoetting/json-client/tree/main for more details about this feature.",
         "enablingConditions": [
           {
             "paramName": "monitorFailedTags",
