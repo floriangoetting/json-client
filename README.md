@@ -25,6 +25,9 @@ Please define the Path under which you want the Endpoint to be available. This p
 ### Set Device ID Cookie
 If this option is enabled, a UUID v4 will be generated and will set a server-side Cookie with the configured settings. This can be used to reidentify the device of a visitor.
 
+### Path to Event Data with Device ID Cookie Enablement Status
+This field can contain the Path to Event Data which contains a boolean value to define dynamically if the Device ID Cookie should be set or not. For example this could be a consent boolean for a service for which this cookie is relevant. If no Event Data is specified, the Device ID Cookie will be set in any case.
+
 ### Device ID Cookie Name
 In this field you can specify the name of your server-side Device ID cookie.
 
@@ -33,6 +36,9 @@ You can customize the number of days here how long you want the Device ID Cookie
 
 ### Set Session ID Cookie
 If this option is enabled, a unix timestamp in milliseconds will be generated and will set a server-side Cookie with the configured settings. This can be used to identify the session of a visitor.
+
+### Path to Event Data with Session ID Cookie Enablement Status
+This field can contain the Path to Event Data which contains a boolean value to define dynamically if the Session ID Cookie should be set or not. For example this could be a consent boolean for a service for which this cookie is relevant. If no Event Data is specified, the Session ID Cookie will be set in any case.
 
 ### Session ID Cookie Name
 In this field you can specify the name of your server-side Session ID cookie.
