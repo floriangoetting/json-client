@@ -1,6 +1,8 @@
 homepage: "https://www.floriangoetting.de"
 documentation: "https://github.com/floriangoetting/json-client"
 versions:
+  - sha: xxx
+    changeNotes: Check for claiming the request moved earlier to optimize performance, Support conditional activation of Device and Session Cookie
   - sha: a20d46902a7092a1b098c0531335c045aa8af61c
     changeNotes: Make cookie lifetimes configurable, Support tag failure event
   - sha: 0218e283bcb4f1f4cff69fafd0591c38f1162306

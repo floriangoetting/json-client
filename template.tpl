@@ -64,204 +64,214 @@ ___TEMPLATE_PARAMETERS___
     "groupStyle": "ZIPPY_CLOSED",
     "subParams": [
       {
-        "type": "CHECKBOX",
-        "name": "setDeviceIdCookie",
-        "checkboxText": "Set Device ID Cookie",
-        "simpleValueType": true
-      },
-      {
-        "type": "TEXT",
-        "name": "deviceIdCookieName",
-        "displayName": "Device ID Cookie Name",
-        "simpleValueType": true,
-        "help": "The Name of your server-side Device ID Cookie.",
-        "enablingConditions": [
+        "type": "GROUP",
+        "name": "deviceIdCookieSettings",
+        "displayName": "Device ID Cookie Settings",
+        "groupStyle": "NO_ZIPPY",
+        "subParams": [
           {
-            "paramName": "setDeviceIdCookie",
-            "paramValue": true,
-            "type": "EQUALS"
-          }
-        ],
-        "defaultValue": "fp_device_id",
-        "valueValidators": [
-          {
-            "type": "NON_EMPTY"
-          }
-        ]
-      },
-      {
-        "type": "TEXT",
-        "name": "deviceIdCookieLifetime",
-        "displayName": "Device ID Cookie Lifetime (Days)",
-        "simpleValueType": true,
-        "defaultValue": 400,
-        "help": "You can customize the number of days here how long you want the Device ID Cookie to live. The default value 400 is the maximum number of days for a cookie to live which is supported by Google Chrome.",
-        "enablingConditions": [
-          {
-            "paramName": "setDeviceIdCookie",
-            "paramValue": true,
-            "type": "EQUALS"
-          }
-        ],
-        "valueValidators": [
-          {
-            "type": "NON_EMPTY"
-          }
-        ]
-      },
-      {
-        "type": "CHECKBOX",
-        "name": "setSessionIdCookie",
-        "checkboxText": "Set Session ID Cookie",
-        "simpleValueType": true
-      },
-      {
-        "type": "TEXT",
-        "name": "sessionIdCookieName",
-        "displayName": "Session ID Cookie Name",
-        "simpleValueType": true,
-        "help": "The Name of your server-side Session ID Cookie.",
-        "enablingConditions": [
-          {
-            "paramName": "setSessionIdCookie",
-            "paramValue": true,
-            "type": "EQUALS"
-          }
-        ],
-        "defaultValue": "fp_session_id",
-        "valueValidators": [
-          {
-            "type": "NON_EMPTY"
-          }
-        ]
-      },
-      {
-        "type": "TEXT",
-        "name": "sessionIdCookieLifetime",
-        "displayName": "Session ID Cookie Lifetime (Minutes)",
-        "simpleValueType": true,
-        "defaultValue": 30,
-        "help": "You can customize the number of minutes here how long you want the Session ID Cookie to live. With the default value of 30 minutes, the Session ID Cookie will be deleted and recreated if the visitor comes back to the site after 30 minutes of inactivity. If the visitor continues to browse through the site, the Session Cookie lifetime will be reset to the number of minutes again to retain the session.",
-        "enablingConditions": [
-          {
-            "paramName": "setSessionIdCookie",
-            "paramValue": true,
-            "type": "EQUALS"
-          }
-        ],
-        "valueValidators": [
-          {
-            "type": "NON_EMPTY"
-          }
-        ]
-      },
-      {
-        "type": "TEXT",
-        "name": "cookieDomain",
-        "displayName": "Cookie Domain",
-        "simpleValueType": true,
-        "help": "The Domain on which you want to set your server-side Cookies. Usually this will be .yourdomain.com to include subdomains as well. If you leave the default value \"auto\" it will be automatically detected as the eTLD+1 of the first header found in the following priority order: 1. \u0027Forwarded\u0027, 2. \u0027X-Forwarded-Host\u0027, 3. \u0027Host\u0027.",
-        "valueValidators": [
-          {
-            "type": "NON_EMPTY"
-          }
-        ],
-        "enablingConditions": [
-          {
-            "paramName": "setDeviceIdCookie",
-            "paramValue": true,
-            "type": "EQUALS"
+            "type": "CHECKBOX",
+            "name": "setDeviceIdCookie",
+            "checkboxText": "Set Device ID Cookie",
+            "simpleValueType": true
           },
           {
-            "paramName": "setSessionIdCookie",
-            "paramValue": true,
-            "type": "EQUALS"
+            "type": "TEXT",
+            "name": "deviceIdCookieEnableEventDataPath",
+            "displayName": "Path to Event Data with Device ID Cookie Enablement Status",
+            "simpleValueType": true,
+            "enablingConditions": [
+              {
+                "paramName": "setDeviceIdCookie",
+                "paramValue": true,
+                "type": "EQUALS"
+              }
+            ],
+            "help": "This field can contain the Path to Event Data which contains a boolean value to define dynamically if the Device ID Cookie should be set or not. For example this could be a consent boolean for a service for which this cookie is relevant. If no Event Data is specified, the Device ID Cookie will be set in any case."
+          },
+          {
+            "type": "TEXT",
+            "name": "deviceIdCookieName",
+            "displayName": "Device ID Cookie Name",
+            "simpleValueType": true,
+            "help": "The Name of your server-side Device ID Cookie.",
+            "enablingConditions": [
+              {
+                "paramName": "setDeviceIdCookie",
+                "paramValue": true,
+                "type": "EQUALS"
+              }
+            ],
+            "defaultValue": "fp_device_id",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
+          },
+          {
+            "type": "TEXT",
+            "name": "deviceIdCookieLifetime",
+            "displayName": "Device ID Cookie Lifetime (Days)",
+            "simpleValueType": true,
+            "defaultValue": 400,
+            "help": "You can customize the number of days here how long you want the Device ID Cookie to live. The default value 400 is the maximum number of days for a cookie to live which is supported by Google Chrome.",
+            "enablingConditions": [
+              {
+                "paramName": "setDeviceIdCookie",
+                "paramValue": true,
+                "type": "EQUALS"
+              }
+            ],
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
           }
         ],
-        "defaultValue": "auto"
+        "enablingConditions": []
       },
       {
-        "type": "TEXT",
-        "name": "cookiePath",
-        "displayName": "Cookie Path",
-        "simpleValueType": true,
-        "help": "You can specify a path here if you want the cookies only be sent on specific URL Paths. Normally this should be left with the default \"/\".",
-        "defaultValue": "/",
-        "enablingConditions": [
+        "type": "GROUP",
+        "name": "sessionIdCookieSettings",
+        "displayName": "Session ID Cookie Settings",
+        "groupStyle": "NO_ZIPPY",
+        "subParams": [
           {
-            "paramName": "setDeviceIdCookie",
-            "paramValue": true,
-            "type": "EQUALS"
+            "type": "CHECKBOX",
+            "name": "setSessionIdCookie",
+            "checkboxText": "Set Session ID Cookie",
+            "simpleValueType": true
           },
           {
-            "paramName": "setSessionIdCookie",
-            "paramValue": true,
-            "type": "EQUALS"
+            "type": "TEXT",
+            "name": "sessionIdCookieEnableEventDataPath",
+            "displayName": "Path to Event Data with Session ID Cookie Enablement Status",
+            "simpleValueType": true,
+            "help": "This field can contain the Path to Event Data which contains a boolean value to define dynamically if the Session ID Cookie should be set or not. For example this could be a consent boolean for a service for which this cookie is relevant. If no Event Data is specified, the Session ID Cookie will be set in any case.",
+            "enablingConditions": [
+              {
+                "paramName": "setSessionIdCookie",
+                "paramValue": true,
+                "type": "EQUALS"
+              }
+            ]
+          },
+          {
+            "type": "TEXT",
+            "name": "sessionIdCookieName",
+            "displayName": "Session ID Cookie Name",
+            "simpleValueType": true,
+            "help": "The Name of your server-side Session ID Cookie.",
+            "enablingConditions": [
+              {
+                "paramName": "setSessionIdCookie",
+                "paramValue": true,
+                "type": "EQUALS"
+              }
+            ],
+            "defaultValue": "fp_session_id",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
+          },
+          {
+            "type": "TEXT",
+            "name": "sessionIdCookieLifetime",
+            "displayName": "Session ID Cookie Lifetime (Minutes)",
+            "simpleValueType": true,
+            "defaultValue": 30,
+            "help": "You can customize the number of minutes here how long you want the Session ID Cookie to live. With the default value of 30 minutes, the Session ID Cookie will be deleted and recreated if the visitor comes back to the site after 30 minutes of inactivity. If the visitor continues to browse through the site, the Session Cookie lifetime will be reset to the number of minutes again to retain the session.",
+            "enablingConditions": [
+              {
+                "paramName": "setSessionIdCookie",
+                "paramValue": true,
+                "type": "EQUALS"
+              }
+            ],
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ]
           }
         ]
       },
       {
-        "type": "CHECKBOX",
-        "name": "cookieSecure",
-        "checkboxText": "Set Secure Flag",
-        "simpleValueType": true,
-        "help": "With the secure flag enabled you make sure, that the cookies will only be set if the HTTPS protocol is beeing used.",
-        "defaultValue": true,
-        "enablingConditions": [
+        "type": "GROUP",
+        "name": "generalCookieSettings",
+        "displayName": "General Cookie Settings",
+        "groupStyle": "NO_ZIPPY",
+        "subParams": [
           {
-            "paramName": "setDeviceIdCookie",
-            "paramValue": true,
-            "type": "EQUALS"
+            "type": "TEXT",
+            "name": "cookieDomain",
+            "displayName": "Cookie Domain",
+            "simpleValueType": true,
+            "help": "The Domain on which you want to set your server-side Cookies. Usually this will be .yourdomain.com to include subdomains as well. If you leave the default value \"auto\" it will be automatically detected as the eTLD+1 of the first header found in the following priority order: 1. \u0027Forwarded\u0027, 2. \u0027X-Forwarded-Host\u0027, 3. \u0027Host\u0027.",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ],
+            "enablingConditions": [],
+            "defaultValue": "auto"
           },
           {
-            "paramName": "setSessionIdCookie",
-            "paramValue": true,
-            "type": "EQUALS"
-          }
-        ]
-      },
-      {
-        "type": "CHECKBOX",
-        "name": "cookieHttpOnly",
-        "checkboxText": "Set HttpOnly Flag",
-        "simpleValueType": true,
-        "help": "With the HttpOnly Flag enabled, you make sure, that the cookies can not be read by javascript for example using document.cookie. If you need to read the cookie values in the client-side GTM, you can still read them from the Data Layer.",
-        "defaultValue": true,
-        "enablingConditions": [
-          {
-            "paramName": "setDeviceIdCookie",
-            "paramValue": true,
-            "type": "EQUALS"
+            "type": "TEXT",
+            "name": "cookiePath",
+            "displayName": "Cookie Path",
+            "simpleValueType": true,
+            "help": "You can specify a path here if you want the cookies only be sent on specific URL Paths. Normally this should be left with the default \"/\".",
+            "defaultValue": "/",
+            "enablingConditions": []
           },
           {
-            "paramName": "setSessionIdCookie",
-            "paramValue": true,
-            "type": "EQUALS"
-          }
-        ]
-      },
-      {
-        "type": "SELECT",
-        "name": "cookieSameSite",
-        "displayName": "SameSite Attribute",
-        "macrosInSelect": false,
-        "selectItems": [
-          {
-            "value": "Lax",
-            "displayValue": "Lax"
+            "type": "CHECKBOX",
+            "name": "cookieSecure",
+            "checkboxText": "Set Secure Flag",
+            "simpleValueType": true,
+            "help": "With the secure flag enabled you make sure, that the cookies will only be set if the HTTPS protocol is beeing used.",
+            "defaultValue": true,
+            "enablingConditions": []
           },
           {
-            "value": "Strict",
-            "displayValue": "Strict"
+            "type": "CHECKBOX",
+            "name": "cookieHttpOnly",
+            "checkboxText": "Set HttpOnly Flag",
+            "simpleValueType": true,
+            "help": "With the HttpOnly Flag enabled, you make sure, that the cookies can not be read by javascript for example using document.cookie. If you need to read the cookie values in the client-side GTM, you can still read them from the Data Layer.",
+            "defaultValue": true,
+            "enablingConditions": []
           },
           {
-            "value": "None",
-            "displayValue": "None"
+            "type": "SELECT",
+            "name": "cookieSameSite",
+            "displayName": "SameSite Attribute",
+            "macrosInSelect": false,
+            "selectItems": [
+              {
+                "value": "Lax",
+                "displayValue": "Lax"
+              },
+              {
+                "value": "Strict",
+                "displayValue": "Strict"
+              },
+              {
+                "value": "None",
+                "displayValue": "None"
+              }
+            ],
+            "simpleValueType": true,
+            "help": "This attribute defines whether the cookies are sent with cross-site requests.",
+            "defaultValue": "Lax",
+            "enablingConditions": []
           }
         ],
-        "simpleValueType": true,
-        "help": "This attribute defines whether the cookies are sent with cross-site requests.",
-        "defaultValue": "Lax",
         "enablingConditions": [
           {
             "paramName": "setDeviceIdCookie",
@@ -429,6 +439,8 @@ const UA = getRequestHeader('user-agent');
 const HOST = getRequestHeader('host');
 const ip = require('getRemoteAddress')();
 
+const requestPath = getRequestPath();
+
 let responseData = {};
 let monitorData = false;
 
@@ -444,6 +456,18 @@ const validateOrigin = () => {
   const allowedOriginsRegEx = createRegex(data.allowedOrigins, 'i');
   return data.allowedOrigins === '*' || (allowedOriginsRegEx !== null && testRegex(allowedOriginsRegEx, origin));
 };
+
+//check if client should claim the request
+if (requestPath === data.requestPath) {
+  if (!validateOrigin()) {
+    log('Request originated from invalid origin');
+    return;
+  }
+  //claim the request
+  claimRequest();
+} else {
+  return;
+}
 
 const payloadToEvent = (payload) => {
   const event = JSON.parse(payload);
@@ -537,110 +561,142 @@ const sendResponse = (statusCode) => {
   returnResponse();
 };
 
-//claim the request
-const requestPath = getRequestPath();
-if (requestPath === data.requestPath) {
-  if (!validateOrigin()) {
-    log('Request originated from invalid origin');
-    return;
+const getValueByPath = (obj, path) => {
+  const parts = path.split('.');
+  let current = obj;
+  for (let i = 0; i < parts.length; i++) {
+    if (current === undefined || current === null) {
+      return undefined;
+    }
+    current = current[parts[i]];
   }
-  
-  claimRequest();
-  
-  let event;
-  const domain = data.cookieDomain;
-  const cookiePath = data.cookiePath;
-  const cookieSecure = data.cookieSecure;
-  const cookieHttpOnly = data.cookieHttpOnly;
-  const cookieSameSite = data.cookieSameSite;
-  const deviceIdCookieName = data.deviceIdCookieName;
-  const deviceIdCookieLifetime = data.deviceIdCookieLifetime;
-  const sessionIdCookieName = data.sessionIdCookieName;
-  const sessionIdCookieLifetime = data.sessionIdCookieLifetime;
-  let deviceIdCookieValue = false;
-  let sessionIdCookieValue = false;
-  //handle the various request methods
-  const requestMethod = getRequestMethod();
-  if (requestMethod === 'POST') {
-    event = payloadToEvent(getRequestBody());
-    //set device and session cookies
-    if(data.setDeviceIdCookie){
-      deviceIdCookieValue = setOrUpdateCookie(deviceIdCookieName, domain, cookiePath, cookieSecure, cookieHttpOnly, cookieSameSite, makeInteger(deviceIdCookieLifetime) * 24 * 60 * 60, generateUUIDv4(), 'device_id');
+  return current;
+};
+
+//handle the request
+let event;
+const domain = data.cookieDomain;
+const cookiePath = data.cookiePath;
+const cookieSecure = data.cookieSecure;
+const cookieHttpOnly = data.cookieHttpOnly;
+const cookieSameSite = data.cookieSameSite;
+const deviceIdCookieName = data.deviceIdCookieName;
+const deviceIdCookieLifetime = data.deviceIdCookieLifetime;
+const sessionIdCookieName = data.sessionIdCookieName;
+const sessionIdCookieLifetime = data.sessionIdCookieLifetime;
+let deviceIdCookieValue = false;
+let sessionIdCookieValue = false;
+//handle the various request methods
+const requestMethod = getRequestMethod();
+if (requestMethod === 'POST') {
+  event = payloadToEvent(getRequestBody());
+  // Set device cookie
+  if (data.setDeviceIdCookie) {
+    const deviceIdCookieEnabled = data.deviceIdCookieEnableEventDataPath ? getValueByPath(event, data.deviceIdCookieEnableEventDataPath) : true;
+
+    if (deviceIdCookieEnabled) {
+      deviceIdCookieValue = setOrUpdateCookie(
+        deviceIdCookieName,
+        domain,
+        cookiePath,
+        cookieSecure,
+        cookieHttpOnly,
+        cookieSameSite,
+        makeInteger(deviceIdCookieLifetime) * 24 * 60 * 60,
+        generateUUIDv4(),
+        'device_id'
+      );
     }
+  }
+
+  //set session cookie
   if(data.setSessionIdCookie){
-      sessionIdCookieValue = setOrUpdateCookie(sessionIdCookieName, domain, cookiePath, cookieSecure, cookieHttpOnly, cookieSameSite, makeInteger(sessionIdCookieLifetime) * 60, makeString(getTimestamp()), 'session_id');
+    const sessionIdCookieEnabled = data.sessionIdCookieEnableEventDataPath ? getValueByPath(event, data.sessionIdCookieEnableEventDataPath) : true;
+    
+    if(sessionIdCookieEnabled) {
+      sessionIdCookieValue = setOrUpdateCookie(
+        sessionIdCookieName,
+        domain,
+        cookiePath,
+        cookieSecure,
+        cookieHttpOnly,
+        cookieSameSite,
+        makeInteger(sessionIdCookieLifetime) * 60,
+        makeString(getTimestamp()),
+        'session_id'
+      );
     }
-    //add common event data
-    event = addCommonEventData(event, deviceIdCookieValue, sessionIdCookieValue);
-    //run mapping
-    if (event) {
-      runContainer(event,
-      /* onComplete= */ (bindToEvent) => {
-        sendResponse(200);
-        //server monitor event
-        if ((data.monitorFailedTags || data.monitorSuccessfulTags) && event.event_name !== data.monitorEventName) {
-          bindToEvent(addEventCallback)((containerId, eventData) => {
-            const tags = eventData.tags.filter(tag => tag.exclude !== 'true');
-            const fTags = tags.filter(tag => tag.status === 'failure');
-            const sTags = tags.filter(tag => tag.status === 'success');
-            
-            const sendEventWithoutCustomData = data.sendMonitorEventWithoutCustomData;
-            const customMonitorDataCheckFailures = !monitorData && sendEventWithoutCustomData == 'onlySuccessfulTags' ? false : true;
-            const shouldMonitorFailures = data.monitorFailedTags && fTags.length > 0 && customMonitorDataCheckFailures;
-            const customMonitorDataCheckSuccesses = !monitorData && sendEventWithoutCustomData == 'onlyFailedTags' ? false : true;
-            const shouldMonitorSuccesses = data.monitorSuccessfulTags && sTags.length > 0 && customMonitorDataCheckSuccesses;
+  }
+  //add common event data
+  event = addCommonEventData(event, deviceIdCookieValue, sessionIdCookieValue);
+  //run mapping
+  if (event) {
+    runContainer(event,
+                 /* onComplete= */ (bindToEvent) => {
+      sendResponse(200);
+      //server monitor event
+      if ((data.monitorFailedTags || data.monitorSuccessfulTags) && event.event_name !== data.monitorEventName) {
+        bindToEvent(addEventCallback)((containerId, eventData) => {
+          const tags = eventData.tags.filter(tag => tag.exclude !== 'true');
+          const fTags = tags.filter(tag => tag.status === 'failure');
+          const sTags = tags.filter(tag => tag.status === 'success');
 
-            if (shouldMonitorFailures || shouldMonitorSuccesses) {
-              const monitorEvent = event;
-              monitorEvent.event_name = data.monitorEventName;
-              monitorEvent.monitor = {};
+          const sendEventWithoutCustomData = data.sendMonitorEventWithoutCustomData;
+          const customMonitorDataCheckFailures = !monitorData && sendEventWithoutCustomData == 'onlySuccessfulTags' ? false : true;
+          const shouldMonitorFailures = data.monitorFailedTags && fTags.length > 0 && customMonitorDataCheckFailures;
+          const customMonitorDataCheckSuccesses = !monitorData && sendEventWithoutCustomData == 'onlyFailedTags' ? false : true;
+          const shouldMonitorSuccesses = data.monitorSuccessfulTags && sTags.length > 0 && customMonitorDataCheckSuccesses;
 
-              if (data.monitorFailedTags && fTags.length > 0) {
-                monitorEvent.monitor.failed_tags = fTags;
-              }
-              if (data.monitorSuccessfulTags && sTags.length > 0) {
-                monitorEvent.monitor.successful_tags = sTags;
-              }
-              if (monitorData) {
-                monitorEvent.monitor.services = monitorData;
-              }
+          if (shouldMonitorFailures || shouldMonitorSuccesses) {
+            const monitorEvent = event;
+            monitorEvent.event_name = data.monitorEventName;
+            monitorEvent.monitor = {};
 
-              runContainer(monitorEvent, () => {
-                // log('Monitor Event Fired:', monitorEvent);
-              });
-            } else {
-              // log('No monitor event fired – no relevant tags.');
+            if (data.monitorFailedTags && fTags.length > 0) {
+              monitorEvent.monitor.failed_tags = fTags;
             }
-          });
-        }
-      }, /* onStart= */ (bindToEvent) => {
-        //listener for tag data for response
-        bindToEvent(addMessageListener)('send_response', (messageType, message) => {
-          if (!responseData.tags) {
-            responseData.tags = {};
-          }
-          
-          const keys = Object.keys(message);
-          if (keys.length > 0) {
-            const tag = keys[0];
-            responseData.tags[tag] = message[tag];
+            if (data.monitorSuccessfulTags && sTags.length > 0) {
+              monitorEvent.monitor.successful_tags = sTags;
+            }
+            if (monitorData) {
+              monitorEvent.monitor.services = monitorData;
+            }
+
+            runContainer(monitorEvent, () => {
+              // log('Monitor Event Fired:', monitorEvent);
+            });
+          } else {
+            // log('No monitor event fired – no relevant tags.');
           }
         });
-        if(data.monitorFailedTags || data.monitorSuccessfulTags){
-          //listener for monitor data
-          bindToEvent(addMessageListener)('server_monitor', (messageType, message) => {
-            if(!monitorData){
-              monitorData = [];
-            }
+      }
+    }, /* onStart= */ (bindToEvent) => {
+      //listener for tag data for response
+      bindToEvent(addMessageListener)('send_response', (messageType, message) => {
+        if (!responseData.tags) {
+          responseData.tags = {};
+        }
 
-            monitorData.push(message);
-          });
+        const keys = Object.keys(message);
+        if (keys.length > 0) {
+          const tag = keys[0];
+          responseData.tags[tag] = message[tag];
         }
       });
-    }
-  } else if (requestMethod === 'OPTIONS') {
-    sendResponse(204);
+      if(data.monitorFailedTags || data.monitorSuccessfulTags){
+        //listener for monitor data
+        bindToEvent(addMessageListener)('server_monitor', (messageType, message) => {
+          if(!monitorData){
+            monitorData = [];
+          }
+
+          monitorData.push(message);
+        });
+      }
+    });
   }
+} else if (requestMethod === 'OPTIONS') {
+  sendResponse(204);
 }
 
 
