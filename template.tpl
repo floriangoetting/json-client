@@ -437,7 +437,6 @@ const requestParams = getRequestQueryParameters();
 const origin = getRequestHeader('origin') || (!!getRequestHeader('referer') && parseUrl(getRequestHeader('referer')).origin) || requestParams.origin;
 const UA = getRequestHeader('user-agent');
 const HOST = getRequestHeader('host');
-const ip = require('getRemoteAddress')();
 
 const requestPath = getRequestPath();
 
@@ -478,7 +477,7 @@ const payloadToEvent = (payload) => {
 };
 
 const addCommonEventData = (event, deviceIdCookieValue, sessionIdCookieValue) => {
-  event.ip_original = ip;
+  event.ip_override = require('getRemoteAddress')();
   if(origin){
     event.origin = origin;
   }
