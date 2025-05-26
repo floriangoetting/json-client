@@ -1,7 +1,7 @@
 homepage: "https://www.floriangoetting.de"
 documentation: "https://github.com/floriangoetting/json-client"
 versions:
-  - sha: xxx
+  - sha: 2d5fd27aeb9269a0e572726afcda239ed41b2a49
     changeNotes: Rename ip_original back to the standard key ip_override for better tag compatibility. Please check if the IP is properly forwarded in your Tags!
   - sha: 2db7b6affb770b16510d2d7a9bb62514bbd635b6
     changeNotes: Check for claiming the request moved earlier to optimize performance, Support conditional activation of Device and Session Cookie
