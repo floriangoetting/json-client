@@ -133,7 +133,7 @@ Example:
 5. Save the Template and test if it works as expected.
 
 ## Support for Native Apps and App Webviews
-There is no native SDK or direct support for the mobile client-side GTM for JSON Tags. However, it is possible to generate JSON payloads in a native app and send the data to the JSON Client endpoint in server-side GTM.
+There is no native SDK or direct support for the mobile client-side GTM for JSON Tags. However, it is possible to generate JSON payloads in a native app and send the data to the JSON Client endpoint in server-side GTM. An Android Sample Tracking App where JSON Payloads are generated and sent to the ssGTM to be received from JSON Client is available on GitHub now! Check the guide and configuration options in the [GitHub Repository of the JSON Tag Test App for Android](https://github.com/floriangoetting/json-tag-test-app-android).
 
 ### Handling of Origin Headers
 It is not an issue that requests from native apps do not contain an Origin header. If the JSON Client does not find an Origin in the request, the validation will automatically pass without any checks.
