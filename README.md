@@ -139,7 +139,7 @@ There is no native SDK or direct support for the mobile client-side GTM for JSON
 It is not an issue that requests from native apps do not contain an Origin header. If the JSON Client does not find an Origin in the request, the validation will automatically pass without any checks.
 
 ### Managing Device and Session IDs in Native Apps
-Since native apps do not support cookies, a custom mechanism must be implemented to persist the device and session ID. If these IDs are already set natively, they should be included in the request headers as cookies, using the same names configured in the JSON Client. The JSON Client will then use these IDs instead of generating new ones.
+Since native apps do not support cookies, a custom mechanism must be implemented to persist the device and session ID. With the first tracking call, JSON Client will generate a new device and session id and returns it in the response. The App then needs to persist the information on the device and need to send the ids with the payload ("client_id" for the device id and "session_id" for the session id) or by sending them as cookie headers with the defined cookie names from JSON Client. When "client_id" and "session_id" are set explicitly in the payload, it will have priority over the cookie values.
 
 ### Support for App Webviews
 The behavior in app webviews is similar:
