@@ -92,7 +92,7 @@ ___TEMPLATE_PARAMETERS___
           {
             "type": "TEXT",
             "name": "deviceIdCookieName",
-            "displayName": "Device ID Cookie Name",
+            "displayName": "Cookie Name",
             "simpleValueType": true,
             "help": "The Name of your server-side Device ID Cookie.",
             "enablingConditions": [
@@ -112,7 +112,7 @@ ___TEMPLATE_PARAMETERS___
           {
             "type": "TEXT",
             "name": "deviceIdCookieLifetime",
-            "displayName": "Device ID Cookie Lifetime (Days)",
+            "displayName": "Cookie Lifetime (Days)",
             "simpleValueType": true,
             "defaultValue": 400,
             "help": "You can customize the number of days here how long you want the Device ID Cookie to live. The default value 400 is the maximum number of days for a cookie to live which is supported by Google Chrome.",
@@ -126,6 +126,106 @@ ___TEMPLATE_PARAMETERS___
             "valueValidators": [
               {
                 "type": "NON_EMPTY"
+              }
+            ]
+          },
+          {
+            "type": "TEXT",
+            "name": "deviceIdCookieDomain",
+            "displayName": "Cookie Domain",
+            "simpleValueType": true,
+            "help": "The Domain on which you want to set your server-side Cookie. Usually this will be .yourdomain.com to include subdomains as well. If you leave the default value \"auto\" it will be automatically detected as the eTLD+1 of the first header found in the following priority order: 1. \u0027Forwarded\u0027, 2. \u0027X-Forwarded-Host\u0027, 3. \u0027Host\u0027.",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ],
+            "defaultValue": "auto",
+            "enablingConditions": [
+              {
+                "paramName": "setDeviceIdCookie",
+                "paramValue": true,
+                "type": "EQUALS"
+              }
+            ]
+          },
+          {
+            "type": "TEXT",
+            "name": "deviceIdCookiePath",
+            "displayName": "Cookie Path",
+            "simpleValueType": true,
+            "help": "You can specify a path here if you want the cookie only be sent on specific URL Paths. Normally this should be left with the default \"/\".",
+            "defaultValue": "/",
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ],
+            "enablingConditions": [
+              {
+                "paramName": "setDeviceIdCookie",
+                "paramValue": true,
+                "type": "EQUALS"
+              }
+            ]
+          },
+          {
+            "type": "CHECKBOX",
+            "name": "deviceIdCookieSecure",
+            "checkboxText": "Set Secure Flag",
+            "simpleValueType": true,
+            "help": "With the secure flag enabled you make sure, that the cookie will only be set if the HTTPS protocol is beeing used.",
+            "defaultValue": true,
+            "enablingConditions": [
+              {
+                "paramName": "setDeviceIdCookie",
+                "paramValue": true,
+                "type": "EQUALS"
+              }
+            ]
+          },
+          {
+            "type": "CHECKBOX",
+            "name": "deviceIdCookieHttpOnly",
+            "checkboxText": "Set HttpOnly Flag",
+            "simpleValueType": true,
+            "help": "With the HttpOnly Flag enabled, you make sure, that the cookie can not be read by javascript for example using document.cookie. If you need to read the cookie values in the client-side GTM, you can still read them from the Data Layer.",
+            "defaultValue": true,
+            "enablingConditions": [
+              {
+                "paramName": "setDeviceIdCookie",
+                "paramValue": true,
+                "type": "EQUALS"
+              }
+            ]
+          },
+          {
+            "type": "SELECT",
+            "name": "deviceIdCookieSameSite",
+            "displayName": "SameSite Attribute",
+            "macrosInSelect": false,
+            "selectItems": [
+              {
+                "value": "Lax",
+                "displayValue": "Lax"
+              },
+              {
+                "value": "Strict",
+                "displayValue": "Strict"
+              },
+              {
+                "value": "None",
+                "displayValue": "None"
+              }
+            ],
+            "simpleValueType": true,
+            "help": "This attribute defines whether the cookie is sent with cross-site requests.",
+            "defaultValue": "Lax",
+            "enablingConditions": [
+              {
+                "paramName": "setDeviceIdCookie",
+                "paramValue": true,
+                "type": "EQUALS"
               }
             ]
           }
@@ -161,7 +261,7 @@ ___TEMPLATE_PARAMETERS___
           {
             "type": "TEXT",
             "name": "sessionIdCookieName",
-            "displayName": "Session ID Cookie Name",
+            "displayName": "Cookie Name",
             "simpleValueType": true,
             "help": "The Name of your server-side Session ID Cookie.",
             "enablingConditions": [
@@ -181,7 +281,7 @@ ___TEMPLATE_PARAMETERS___
           {
             "type": "TEXT",
             "name": "sessionIdCookieLifetime",
-            "displayName": "Session ID Cookie Lifetime (Minutes)",
+            "displayName": "Cookie Lifetime (Minutes)",
             "simpleValueType": true,
             "defaultValue": 30,
             "help": "You can customize the number of minutes here how long you want the Session ID Cookie to live. With the default value of 30 minutes, the Session ID Cookie will be deleted and recreated if the visitor comes back to the site after 30 minutes of inactivity. If the visitor continues to browse through the site, the Session Cookie lifetime will be reset to the number of minutes again to retain the session.",
@@ -197,59 +297,80 @@ ___TEMPLATE_PARAMETERS___
                 "type": "NON_EMPTY"
               }
             ]
-          }
-        ]
-      },
-      {
-        "type": "GROUP",
-        "name": "generalCookieSettings",
-        "displayName": "General Cookie Settings",
-        "groupStyle": "NO_ZIPPY",
-        "subParams": [
+          },
           {
             "type": "TEXT",
-            "name": "cookieDomain",
+            "name": "sessionIdCookieDomain",
             "displayName": "Cookie Domain",
             "simpleValueType": true,
-            "help": "The Domain on which you want to set your server-side Cookies. Usually this will be .yourdomain.com to include subdomains as well. If you leave the default value \"auto\" it will be automatically detected as the eTLD+1 of the first header found in the following priority order: 1. \u0027Forwarded\u0027, 2. \u0027X-Forwarded-Host\u0027, 3. \u0027Host\u0027.",
+            "help": "The Domain on which you want to set your server-side Cookie. Usually this will be .yourdomain.com to include subdomains as well. If you leave the default value \"auto\" it will be automatically detected as the eTLD+1 of the first header found in the following priority order: 1. \u0027Forwarded\u0027, 2. \u0027X-Forwarded-Host\u0027, 3. \u0027Host\u0027.",
             "valueValidators": [
               {
                 "type": "NON_EMPTY"
               }
             ],
-            "enablingConditions": [],
-            "defaultValue": "auto"
+            "defaultValue": "auto",
+            "enablingConditions": [
+              {
+                "paramName": "setSessionIdCookie",
+                "paramValue": true,
+                "type": "EQUALS"
+              }
+            ]
           },
           {
             "type": "TEXT",
-            "name": "cookiePath",
+            "name": "sessionIdCookiePath",
             "displayName": "Cookie Path",
             "simpleValueType": true,
-            "help": "You can specify a path here if you want the cookies only be sent on specific URL Paths. Normally this should be left with the default \"/\".",
+            "help": "You can specify a path here if you want the cookie only be sent on specific URL Paths. Normally this should be left with the default \"/\".",
             "defaultValue": "/",
-            "enablingConditions": []
+            "valueValidators": [
+              {
+                "type": "NON_EMPTY"
+              }
+            ],
+            "enablingConditions": [
+              {
+                "paramName": "setSessionIdCookie",
+                "paramValue": true,
+                "type": "EQUALS"
+              }
+            ]
           },
           {
             "type": "CHECKBOX",
-            "name": "cookieSecure",
+            "name": "sessionIdCookieSecure",
             "checkboxText": "Set Secure Flag",
             "simpleValueType": true,
-            "help": "With the secure flag enabled you make sure, that the cookies will only be set if the HTTPS protocol is beeing used.",
+            "help": "With the secure flag enabled you make sure, that the cookie will only be set if the HTTPS protocol is beeing used.",
             "defaultValue": true,
-            "enablingConditions": []
+            "enablingConditions": [
+              {
+                "paramName": "setSessionIdCookie",
+                "paramValue": true,
+                "type": "EQUALS"
+              }
+            ]
           },
           {
             "type": "CHECKBOX",
-            "name": "cookieHttpOnly",
+            "name": "sessionIdCookieHttpOnly",
             "checkboxText": "Set HttpOnly Flag",
             "simpleValueType": true,
-            "help": "With the HttpOnly Flag enabled, you make sure, that the cookies can not be read by javascript for example using document.cookie. If you need to read the cookie values in the client-side GTM, you can still read them from the Data Layer.",
+            "help": "With the HttpOnly Flag enabled, you make sure, that the cookie can not be read by javascript for example using document.cookie. If you need to read the cookie values in the client-side GTM, you can still read them from the Data Layer.",
             "defaultValue": true,
-            "enablingConditions": []
+            "enablingConditions": [
+              {
+                "paramName": "setSessionIdCookie",
+                "paramValue": true,
+                "type": "EQUALS"
+              }
+            ]
           },
           {
             "type": "SELECT",
-            "name": "cookieSameSite",
+            "name": "sessionIdCookieSameSite",
             "displayName": "SameSite Attribute",
             "macrosInSelect": false,
             "selectItems": [
@@ -267,23 +388,131 @@ ___TEMPLATE_PARAMETERS___
               }
             ],
             "simpleValueType": true,
-            "help": "This attribute defines whether the cookies are sent with cross-site requests.",
+            "help": "This attribute defines whether the cookie is sent with cross-site requests.",
             "defaultValue": "Lax",
-            "enablingConditions": []
-          }
-        ],
-        "enablingConditions": [
-          {
-            "paramName": "setDeviceIdCookie",
-            "paramValue": true,
-            "type": "EQUALS"
-          },
-          {
-            "paramName": "setSessionIdCookie",
-            "paramValue": true,
-            "type": "EQUALS"
+            "enablingConditions": [
+              {
+                "paramName": "setSessionIdCookie",
+                "paramValue": true,
+                "type": "EQUALS"
+              }
+            ]
           }
         ]
+      },
+      {
+        "type": "GROUP",
+        "name": "extendCookieSettings",
+        "displayName": "Extend Cookie Lifetimes Server-Side",
+        "groupStyle": "NO_ZIPPY",
+        "subParams": [
+          {
+            "type": "PARAM_TABLE",
+            "name": "cookiesToExtend",
+            "displayName": "Cookies to Extend",
+            "paramTableColumns": [
+              {
+                "param": {
+                  "type": "TEXT",
+                  "name": "cookieName",
+                  "displayName": "Name",
+                  "simpleValueType": true,
+                  "help": "The name of the cookie whose lifetime you want to extend.",
+                  "valueValidators": [
+                    {
+                      "type": "NON_EMPTY"
+                    }
+                  ]
+                },
+                "isUnique": true
+              },
+              {
+                "param": {
+                  "type": "TEXT",
+                  "name": "cookieDomain",
+                  "displayName": "Domain",
+                  "simpleValueType": true,
+                  "help": "The Domain on which the cookie is set. Usually this will be .yourdomain.com to include subdomains as well. If you leave the default value \"auto\" it will be automatically detected as the eTLD+1 of the first header found in the following priority order: 1. \u0027Forwarded\u0027, 2. \u0027X-Forwarded-Host\u0027, 3. \u0027Host\u0027. Please be careful here because if this does not match the domain from the existing cookie, a duplicate cookie would be created.",
+                  "defaultValue": "auto",
+                  "valueValidators": [
+                    {
+                      "type": "NON_EMPTY"
+                    }
+                  ]
+                },
+                "isUnique": false
+              },
+              {
+                "param": {
+                  "type": "TEXT",
+                  "name": "cookiePath",
+                  "displayName": "Path",
+                  "simpleValueType": true,
+                  "help": "The cookie path specifies the URL path within the domain to which the cookie is sent. In most cases, you should leave it at its default value \"/\". Please be careful here because if this does not match the path from the existing cookie, a duplicate cookie would be created.",
+                  "valueValidators": [
+                    {
+                      "type": "NON_EMPTY"
+                    }
+                  ],
+                  "defaultValue": "/"
+                },
+                "isUnique": false
+              },
+              {
+                "param": {
+                  "type": "CHECKBOX",
+                  "name": "cookieSecure",
+                  "checkboxText": "Secure",
+                  "simpleValueType": true,
+                  "defaultValue": true,
+                  "help": "With the secure flag enabled you make sure, that the cookies will only be set if the HTTPS protocol is beeing used."
+                },
+                "isUnique": false
+              },
+              {
+                "param": {
+                  "type": "CHECKBOX",
+                  "name": "cookieHttpOnly",
+                  "checkboxText": "HttpOnly",
+                  "simpleValueType": true,
+                  "defaultValue": false,
+                  "help": "The HttpOnly flag determines whether the cookie is accessible via client-side JavaScript, such as through document.cookie. If your application includes client-side logic that needs to read this cookie, you should leave this option unchecked."
+                },
+                "isUnique": false
+              },
+              {
+                "param": {
+                  "type": "SELECT",
+                  "name": "cookieSameSite",
+                  "displayName": "SameSite",
+                  "macrosInSelect": false,
+                  "selectItems": [
+                    {
+                      "value": "Lax",
+                      "displayValue": "Lax"
+                    },
+                    {
+                      "value": "Strict",
+                      "displayValue": "Strict"
+                    },
+                    {
+                      "value": "None",
+                      "displayValue": "None"
+                    }
+                  ],
+                  "simpleValueType": true,
+                  "help": "This attribute defines whether the cookies are sent with cross-site requests.",
+                  "defaultValue": "Lax"
+                },
+                "isUnique": false
+              }
+            ],
+            "newRowTitle": "Add Cookie Details",
+            "newRowButtonText": "Add Cookie Details",
+            "editRowTitle": "Edit Cookie Details"
+          }
+        ],
+        "help": "You can define cookies here that you want to persist as long as possible. The JSON client will then extend their lifetimes server-side. This can be especially beneficial for client-side cookies used for device identification, which would otherwise be unstable due to privacy protections. There\u0027s no need to include the device and session ID cookies from the JSON client here, as they are created server-side anyway."
       }
     ]
   },
@@ -506,13 +735,16 @@ const generateUUIDv4 = () => {
   return uuid;
 };
 
-let setOrUpdateCookie = (cookieName, domain, cookiePath, cookieSecure, cookieHttpOnly, cookieSameSite, duration, value) => { 
+const setOrUpdateCookie = (cookieName, domain, cookiePath, cookieSecure, cookieHttpOnly, cookieSameSite, duration, value) => { 
     // Retrieve the existing cookie value
     const existingCookieValues = getCookieValues(cookieName);
     const existingCookie = existingCookieValues.length > 0 ? existingCookieValues[0] : null;
 
-    // Generate a new UUID if no existing cookie
+    // Generate a new value if no existing cookie is found
     const cookieValue = existingCookie || value;
+    
+    // cookie value might be null or false if no existing cookie is found and no new cookie value is specified
+    if(!cookieValue) return false;
 
     // Set the cookie
     setCookie(cookieName, cookieValue, {
@@ -525,6 +757,24 @@ let setOrUpdateCookie = (cookieName, domain, cookiePath, cookieSecure, cookieHtt
     });
     
     return cookieValue;
+};
+
+const extendCookieLifetimes = () => {
+  if (typeof data.cookiesToExtend === 'undefined' || data.cookiesToExtend.length === 0){
+    return false;
+  }
+  
+  for (let i = 0; i < data.cookiesToExtend.length; i++) {
+    //the maximum duration of 400 days is used, no value is passed to avoid creating new cookies
+    setOrUpdateCookie(
+      data.cookiesToExtend[i].cookieName,
+      data.cookiesToExtend[i].cookieDomain,
+      data.cookiesToExtend[i].cookiePath,
+      data.cookiesToExtend[i].cookieSecure,
+      data.cookiesToExtend[i].cookieHttpOnly,
+      data.cookiesToExtend[i].cookieSameSite,
+      400 * 24 * 60 * 60);
+  }
 };
 
 const sendResponse = (statusCode) => {
@@ -565,17 +815,12 @@ const getValueByPath = (obj, path) => {
   return current;
 };
 
+const getOrDefault = (val, def) => {
+  return typeof val === 'undefined' ? def : val;
+};
+
 // handle the request
 let event;
-const domain = data.cookieDomain;
-const cookiePath = data.cookiePath;
-const cookieSecure = data.cookieSecure;
-const cookieHttpOnly = data.cookieHttpOnly;
-const cookieSameSite = data.cookieSameSite;
-const deviceIdCookieName = data.deviceIdCookieName;
-const deviceIdCookieLifetime = data.deviceIdCookieLifetime;
-const sessionIdCookieName = data.sessionIdCookieName;
-const sessionIdCookieLifetime = data.sessionIdCookieLifetime;
 // handle the various request methods
 const requestMethod = getRequestMethod();
 if (requestMethod === 'POST') {
@@ -585,18 +830,19 @@ if (requestMethod === 'POST') {
     const deviceIdCookieEnabled = data.deviceIdCookieEnableEventDataPath ? getValueByPath(event, data.deviceIdCookieEnableEventDataPath) : true;
 
     if (deviceIdCookieEnabled) {
+      // priotize client-side set device id if it is set
       const eventClientId = event.client_id;
       
       // Only set cookie if NO client-side value was sent
       if(!eventClientId) {
         event.client_id = setOrUpdateCookie(
-          deviceIdCookieName,
-          domain,
-          cookiePath,
-          cookieSecure,
-          cookieHttpOnly,
-          cookieSameSite,
-          makeInteger(deviceIdCookieLifetime) * 24 * 60 * 60,
+          getOrDefault(data.deviceIdCookieName, 'fp_device_id'),
+          getOrDefault(data.deviceIdCookieDomain, 'auto'),
+          getOrDefault(data.deviceIdCookiePath, '/'),
+          getOrDefault(data.deviceIdCookieSecure, true),
+          getOrDefault(data.deviceIdCookieHttpOnly, true),
+          getOrDefault(data.deviceIdCookieSameSite, 'Lax'),
+          makeInteger(data.deviceIdCookieLifetime) * 24 * 60 * 60,
           generateUUIDv4()
         );
       }
@@ -610,18 +856,19 @@ if (requestMethod === 'POST') {
     const sessionIdCookieEnabled = data.sessionIdCookieEnableEventDataPath ? getValueByPath(event, data.sessionIdCookieEnableEventDataPath) : true;
     
     if(sessionIdCookieEnabled) {
+      // priotize client-side set session id if it is set
       const eventSessionId = event.session_id;
       
       // Only set cookie if NO client-side value was sent
       if(!eventSessionId) {
         event.session_id = setOrUpdateCookie(
-          sessionIdCookieName,
-          domain,
-          cookiePath,
-          cookieSecure,
-          cookieHttpOnly,
-          cookieSameSite,
-          makeInteger(sessionIdCookieLifetime) * 60,
+          getOrDefault(data.sessionIdCookieName, 'fp_session_id'),
+          getOrDefault(data.sessionIdCookieDomain, 'auto'),
+          getOrDefault(data.sessionIdCookiePath, '/'),
+          getOrDefault(data.sessionIdCookieSecure, true),
+          getOrDefault(data.sessionIdCookieHttpOnly, true),
+          getOrDefault(data.sessionIdCookieSameSite, 'Lax'),
+          makeInteger(data.sessionIdCookieLifetime) * 60,
           makeString(getTimestamp())
         );
       }
@@ -631,7 +878,9 @@ if (requestMethod === 'POST') {
   }
   // add common event data
   event = addCommonEventData(event);
-  // run mapping
+  // extend cookie lifetimes for selected cookies
+  extendCookieLifetimes();
+  // run container
   if (event) {
     runContainer(event,
                  /* onComplete= */ (bindToEvent) => {

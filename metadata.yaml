@@ -1,6 +1,8 @@
 homepage: "https://www.floriangoetting.de"
 documentation: "https://github.com/floriangoetting/json-client"
 versions:
+  - sha: xxx
+    changeNotes: Allow specific cookie settings for session id and device id cookies. Added new extend cookie lifetime feature to extend the lifetimes of client-side set cookies server-side.
   - sha: 6144d243ac3df85c80bf8fb1033a3b0c1eecccfb
     changeNotes: Support for adding client_id and session_id directly in the payload. The payload values have priority over the cookies and in this case no response cookies will be returned.
   - sha: 2d5fd27aeb9269a0e572726afcda239ed41b2a49
