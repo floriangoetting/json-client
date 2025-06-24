@@ -21,64 +21,86 @@ After you added this Template to your container, you can create a new Client wit
 
 Configure the JSON Client according to your needs and save it.
 
-### Request Path
+### Client Settings
+#### Request Path
 Please define the Path under which you want the Endpoint to be available. This path needs to match the path which is configured in the JSON Tag Variable in the client-side GTM (See: https://github.com/floriangoetting/json-tag-variable?tab=readme-ov-file#endpoint-path).
 
-### Set Device ID Cookie
+### Cookie Settings
+#### Set Device ID Cookie
 If this option is enabled, a UUID v4 will be generated and will set a server-side Cookie with the configured settings. This can be used to reidentify the device of a visitor.
 
-### Path to Event Data with Device ID Cookie Enablement Status
+#### Path to Event Data with Device ID Cookie Enablement Status
 This field can contain the Path to Event Data which contains a boolean value to define dynamically if the Device ID Cookie should be set or not. For example this could be a consent boolean for a service for which this cookie is relevant. If no Event Data is specified, the Device ID Cookie will be set in any case.
 
-### Device ID Cookie Name
+#### Device ID Cookie Name
 In this field you can specify the name of your server-side Device ID cookie.
 
-### Device ID Cookie Lifetime (Days)
+#### Device ID Cookie Lifetime (Days)
 You can customize the number of days here how long you want the Device ID Cookie to live. The default value 400 is the maximum number of days for a cookie to live which is supported by Google Chrome.
 
-### Set Session ID Cookie
-If this option is enabled, a unix timestamp in milliseconds will be generated and will set a server-side Cookie with the configured settings. This can be used to identify the session of a visitor.
-
-### Path to Event Data with Session ID Cookie Enablement Status
-This field can contain the Path to Event Data which contains a boolean value to define dynamically if the Session ID Cookie should be set or not. For example this could be a consent boolean for a service for which this cookie is relevant. If no Event Data is specified, the Session ID Cookie will be set in any case.
-
-### Session ID Cookie Name
-In this field you can specify the name of your server-side Session ID cookie.
-
-### Session ID Cookie Lifetime (Minutes)
-You can customize the number of minutes here how long you want the Session ID Cookie to live. With the default value of 30 minutes, the Session ID Cookie will be deleted and recreated if the visitor comes back to the site after 30 minutes of inactivity. If the visitor continues to browse through the site, the Session Cookie lifetime will be reset to the number of minutes again to retain the session.
-
-### Cookie Domain
+#### Cookie Domain
 The Domain on which you want to set your server-side Cookies. Usually this will be .yourdomain.com to include subdomains as well. If you leave the default value "auto" it will be automatically detected as the eTLD+1 of the first header found in the following priority order: 1. 'Forwarded', 2. 'X-Forwarded-Host', 3. 'Host'.
 
-### Cookie Path
+#### Cookie Path
 You can specify a path here if you want the cookies only be sent on specific URL Paths. Normally this should be left with the default "/".
 
-### Set Secure Flag
+#### Set Secure Flag
 With the secure flag enabled you make sure, that the cookies will only be set if the HTTPS protocol is beeing used.
 
-### Set HttpOnly Flag
+#### Set HttpOnly Flag
 With the HttpOnly Flag enabled, you make sure, that the cookies can not be read by javascript for example using document.cookie. If you need to read the cookie values in the client-side GTM, you can still read them from the Data Layer.
 
-### SameSite Attribute
+#### SameSite Attribute
 This attribute defines whether the cookies are sent with cross-site requests.
 
-### Enable CORS Headers
+#### Set Session ID Cookie
+If this option is enabled, a unix timestamp in milliseconds will be generated and will set a server-side Cookie with the configured settings. This can be used to identify the session of a visitor.
+
+#### Path to Event Data with Session ID Cookie Enablement Status
+This field can contain the Path to Event Data which contains a boolean value to define dynamically if the Session ID Cookie should be set or not. For example this could be a consent boolean for a service for which this cookie is relevant. If no Event Data is specified, the Session ID Cookie will be set in any case.
+
+#### Session ID Cookie Name
+In this field you can specify the name of your server-side Session ID cookie.
+
+#### Session ID Cookie Lifetime (Minutes)
+You can customize the number of minutes here how long you want the Session ID Cookie to live. With the default value of 30 minutes, the Session ID Cookie will be deleted and recreated if the visitor comes back to the site after 30 minutes of inactivity. If the visitor continues to browse through the site, the Session Cookie lifetime will be reset to the number of minutes again to retain the session.
+
+#### Cookie Domain
+The Domain on which you want to set your server-side Cookies. Usually this will be .yourdomain.com to include subdomains as well. If you leave the default value "auto" it will be automatically detected as the eTLD+1 of the first header found in the following priority order: 1. 'Forwarded', 2. 'X-Forwarded-Host', 3. 'Host'.
+
+#### Cookie Path
+You can specify a path here if you want the cookies only be sent on specific URL Paths. Normally this should be left with the default "/".
+
+#### Set Secure Flag
+With the secure flag enabled you make sure, that the cookies will only be set if the HTTPS protocol is beeing used.
+
+#### Set HttpOnly Flag
+With the HttpOnly Flag enabled, you make sure, that the cookies can not be read by javascript for example using document.cookie. If you need to read the cookie values in the client-side GTM, you can still read them from the Data Layer.
+
+#### SameSite Attribute
+This attribute defines whether the cookies are sent with cross-site requests.
+
+### Extend Cookie Lifetimes Server-Side
+You can define cookies here that you want to persist as long as possible. The JSON client will then extend their lifetimes server-side. This can be especially beneficial for client-side cookies used for device identification, which would otherwise be unstable due to privacy protections. There's no need to include the device and session ID cookies from the JSON client here, as they are created server-side anyway.
+
+### CORS Settings
+#### Enable CORS Headers
 If your Tagging Server is served from a different domain or subdomain, you will need to configure the CORS Headers to make sure that the requests are not blocked. Please note that the CORS Headers will not work until you publish the ssGTM Container the first time with the setting enabled. You will also need to clear the browser cache and cookies after you published the ssGTM Container.
 
-### Allowed Origins
+#### Allowed Origins
 Please enter a valid RegEx here to validate the origin. If the RegEx is not matched, the request will not be claimed. If you do not want to validate the origin, just leave the default value of "*".
 
-### Monitor Failed Tags
+### Monitoring Settings
+#### Monitor Failed Tags
 When this option is activated, the JSON Client will listen for failed tags and will create a monitor event when at least one of the tags failed. You can send additional data like the request and response from the tags to the JSON Client which will be included in the event. For more details about this please check the section "How to get a more detailed Monitor Event".
 
-### Monitor Successful Tags
+#### Monitor Successful Tags
 When this option is activated, the JSON Client will listen for successful tags and will create a monitor event when at least one of the tags suceeded. You can send additional data like the request and response from the tags to the JSON Client which will be included in the event. For more details about this please check the section "How to get a more detailed Monitor Event".
 
-### Monitor Event Name
+#### Monitor Event Name
 You can customize the name of the monitor event here. The default event name is "server_monitor".
 
-### Send Monitor Event also if no custom Monitor Data is provided
+#### Send Monitor Event also if no custom Monitor Data is provided
 You can specify here, if the Monitoring Event should be sent as well if no custom Monitor Data had been provided through the send message "server_monitor" API Call from your server tags.
 For more details about this please check the section "How to get a more detailed Monitor Event".
 
