@@ -1,7 +1,7 @@
 homepage: "https://www.floriangoetting.de"
 documentation: "https://github.com/floriangoetting/json-client"
 versions:
-  - sha: xxx
+  - sha: 891f7f9a5aff38e342854ef6494e1c0b1c5f44c4
     changeNotes: Adding support for x-gtm-server-preview header in CORS requests. Please be aware that the CORS settings can not be tested in preview mode and are only effective after publishing the server container.
   - sha: f60edae6202fabfca2283ed104168cdafe2b1db7
     changeNotes: Allow specific cookie settings for session id and device id cookies. Added new extend cookie lifetime feature to extend the lifetimes of client-side set cookies server-side.
