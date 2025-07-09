@@ -784,7 +784,7 @@ const sendResponse = (statusCode) => {
     setResponseHeader('Access-Control-Allow-Credentials', 'true');
     setResponseHeader(
       'Access-Control-Allow-Headers',
-      'Content-Type, Content-Encoding, Accept-Encoding'
+      'Content-Type, Content-Encoding, Accept-Encoding, X-Gtm-Server-Preview'
     );
     setResponseHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   }
