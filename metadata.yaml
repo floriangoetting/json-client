@@ -1,7 +1,7 @@
 homepage: "https://www.floriangoetting.de"
 documentation: "https://github.com/floriangoetting/json-client"
 versions:
-  - sha: xxx
+  - sha: 4776507aa6ab3b471b7cc7d5d9321bc48cc8cbf2
     changeNotes: Only set common event data if it was not yet set in the original payload. This adds support for backend events that already contain the server side set event data.
   - sha: fb29361fd46d9c874e55beb5a72714f1c915f224
     changeNotes: Adding support for x-keepalive-request header in CORS requests. Please be aware that the CORS settings can not be tested in preview mode and are only effective after publishing the server container.
