@@ -706,12 +706,11 @@ const payloadToEvent = (payload) => {
 };
 
 const addCommonEventData = (event) => {
-  event.ip_override = require('getRemoteAddress')();
-  if(origin){
-    event.origin = origin;
-  }
-  event.host = HOST;
-  event.user_agent = UA;
+  // only set common event data if it was not yet set in the original payload
+  if(!event.ip_override) event.ip_override = require('getRemoteAddress')();
+  if(origin && !event.origin) event.origin = origin;
+  if(!event.host) event.host = HOST;
+  if(!event.user_agent) event.user_agent = UA;
   
   return event;
 };
