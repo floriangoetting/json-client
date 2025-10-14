@@ -899,6 +899,7 @@ if (requestMethod === 'POST') {
 
           if (shouldMonitorFailures || shouldMonitorSuccesses) {
             const monitorEvent = event;
+            monitorEvent.event_name_original = event.event_name;
             monitorEvent.event_name = data.monitorEventName;
             monitorEvent.monitor = {};
 
