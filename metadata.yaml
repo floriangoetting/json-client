@@ -1,6 +1,8 @@
 homepage: "https://www.floriangoetting.de"
 documentation: "https://github.com/floriangoetting/json-client"
 versions:
+  - sha: 977dc036bc633aec751c09744425beca742c1cd8
+    changeNotes: retain original event name in monitoring event
   - sha: 4776507aa6ab3b471b7cc7d5d9321bc48cc8cbf2
     changeNotes: Only set common event data if it was not yet set in the original payload. This adds support for backend events that already contain the server side set event data.
   - sha: fb29361fd46d9c874e55beb5a72714f1c915f224
