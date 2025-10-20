@@ -1,6 +1,8 @@
 homepage: "https://www.floriangoetting.de"
 documentation: "https://github.com/floriangoetting/json-client"
 versions:
+  - sha: bd65e40ab6a2726f5f5c39e7e74e47de1101f2ee
+    changeNotes: Added source.js and formatted js properly
   - sha: 977dc036bc633aec751c09744425beca742c1cd8
     changeNotes: retain original event name in monitoring event
   - sha: 4776507aa6ab3b471b7cc7d5d9321bc48cc8cbf2
