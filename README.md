@@ -188,22 +188,22 @@ JSON Client can also handle multiple events in one request. Currently JSON Tag d
 
 #### Single Event Payload in Object Syntax
 ```javascript
-   {"event_name": "page_view", "event_type": "view"}
+{"event_name": "page_view", "event_type": "view"}
 ```
 
 #### Single Event Payload in Array Syntax
 ```javascript
-   [
-       {"event_name": "page_view", "event_type": "view"}
-   ]
+[
+   {"event_name": "page_view", "event_type": "view"}
+]
 ```
 
 #### Multiple Event Payload in Array Syntax
 ```javascript
-   [
-      {"event_name": "page_view", "event_type": "view"},
-      {"event_name": "add_to_cart", "event_type": "callback"}
-   ]
+[
+   {"event_name": "page_view", "event_type": "view"},
+   {"event_name": "add_to_cart", "event_type": "callback"}
+]
 ```
 
 ### Event Data and Response
@@ -211,97 +211,97 @@ Events sent through a batch with more than 1 event in the request, will add an e
 
 #### Example JSON Client Response
 ```javascript
-   {
-     "events_processed": 2,
-     "responses": [
-       {
-         "tags": {
-           "adobe": {
-             "params": {
-               "h1": "plp|katze",
-               "c1": "D=g",
-               "zip": "26191",
-               "bw": "1920",
-               "bh": "919",
-               "s": "1920x1080",
-               "events": "event10,event61,event176"
-             }
-           },
-           "validator": {
-             "valid": false,
-             "errors": [
-               {
-                 "path": "<root>",
-                 "message": "Additional properties are not allowed ('app', 'batched_request' were unexpected)",
-                 "validator": "additionalProperties"
-               },
-               {
-                 "path": "<root>",
-                 "message": "'application' is a required property",
-                 "validator": "required"
-               },
-               {
-                 "path": "device",
-                 "message": "'type' is a required property",
-                 "validator": "required"
-               },
-               {
-                 "path": "device",
-                 "message": "'viewport_class' is a required property",
-                 "validator": "required"
-               }
-             ],
-             "event_name": "page_view"
-           },
-           "tealium": {}
-         }
-       },
-       {
-         "tags": {
-           "adobe": {
-             "params": {
-               "h1": "plp|katze|katzenfutter|nassfutter",
-               "c1": "D=g",
-               "zip": "26191",
-               "bw": "1920",
-               "bh": "919",
-               "s": "1920x1080",
-               "events": "event19,event42,event61,event122,event138,event139:038366592,event200,scAdd,scOpen:038366592"
-             }
-           },
-           "validator": {
-             "valid": false,
-             "errors": [
-               {
-                 "path": "<root>",
-                 "message": "'application' is a required property",
-                 "validator": "required"
-               },
-               {
-                 "path": "<root>",
-                 "message": "Additional properties are not allowed ('app', 'batched_request' were unexpected)",
-                 "validator": "additionalProperties"
-               },
-               {
-                 "path": "device",
-                 "message": "'type' is a required property",
-                 "validator": "required"
-               },
-               {
-                 "path": "device",
-                 "message": "'viewport_class' is a required property",
-                 "validator": "required"
-               }
-             ],
-             "event_name": "add_to_cart"
-           },
-           "tealium": {}
-         }
-       }
-     ],
-     "device_id": "1747ac31-2d5e-4b4e-94f1-f69078a3fafx",
-     "session_id": "1761033239836"
-   }
+{
+  "events_processed": 2,
+  "responses": [
+    {
+      "tags": {
+        "adobe": {
+          "params": {
+            "h1": "plp|katze",
+            "c1": "D=g",
+            "zip": "26191",
+            "bw": "1920",
+            "bh": "919",
+            "s": "1920x1080",
+            "events": "event10,event61,event176"
+          }
+        },
+        "validator": {
+          "valid": false,
+          "errors": [
+            {
+              "path": "<root>",
+              "message": "Additional properties are not allowed ('app', 'batched_request' were unexpected)",
+              "validator": "additionalProperties"
+            },
+            {
+              "path": "<root>",
+              "message": "'application' is a required property",
+              "validator": "required"
+            },
+            {
+              "path": "device",
+              "message": "'type' is a required property",
+              "validator": "required"
+            },
+            {
+              "path": "device",
+              "message": "'viewport_class' is a required property",
+              "validator": "required"
+            }
+          ],
+          "event_name": "page_view"
+        },
+        "tealium": {}
+      }
+    },
+    {
+      "tags": {
+        "adobe": {
+          "params": {
+            "h1": "plp|katze|katzenfutter|nassfutter",
+            "c1": "D=g",
+            "zip": "26191",
+            "bw": "1920",
+            "bh": "919",
+            "s": "1920x1080",
+            "events": "event19,event42,event61,event122,event138,event139:038366592,event200,scAdd,scOpen:038366592"
+          }
+        },
+        "validator": {
+          "valid": false,
+          "errors": [
+            {
+              "path": "<root>",
+              "message": "'application' is a required property",
+              "validator": "required"
+            },
+            {
+              "path": "<root>",
+              "message": "Additional properties are not allowed ('app', 'batched_request' were unexpected)",
+              "validator": "additionalProperties"
+            },
+            {
+              "path": "device",
+              "message": "'type' is a required property",
+              "validator": "required"
+            },
+            {
+              "path": "device",
+              "message": "'viewport_class' is a required property",
+              "validator": "required"
+            }
+          ],
+          "event_name": "add_to_cart"
+        },
+        "tealium": {}
+      }
+    }
+  ],
+  "device_id": "1747ac31-2d5e-4b4e-94f1-f69078a3fafx",
+  "session_id": "1761033239836"
+}
 ```
 
 ## How to contribute to the Template
