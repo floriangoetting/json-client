@@ -1,6 +1,8 @@
 homepage: "https://www.floriangoetting.de"
 documentation: "https://github.com/floriangoetting/json-client"
 versions:
+  - sha: xxx
+    changeNotes: Support for batched requests added. Please refer to the documentation for more details.
   - sha: bd65e40ab6a2726f5f5c39e7e74e47de1101f2ee
     changeNotes: Added source.js and formatted js properly
   - sha: 977dc036bc633aec751c09744425beca742c1cd8

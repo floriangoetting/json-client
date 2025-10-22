@@ -15,7 +15,7 @@ const getRequestPath = require('getRequestPath');
 const getRequestMethod = require('getRequestMethod');
 const getRequestQueryParameters = require('getRequestQueryParameters');
 const generateRandom = require('generateRandom');
-const getTimestamp = require('getTimestamp');
+const getTimestampMillis = require('getTimestampMillis');
 const logToConsole = require('logToConsole');
 const Object = require('Object');
 const JSON = require('JSON');
@@ -24,6 +24,7 @@ const parseUrl = require('parseUrl');
 const createRegex = require('createRegex');
 const testRegex = require('testRegex');
 const addMessageListener = require('addMessageListener');
+const Promise = require('Promise');
 
 const requestParams = getRequestQueryParameters();
 const origin = getRequestHeader('origin') || (!!getRequestHeader('referer') && parseUrl(getRequestHeader('referer')).origin) || requestParams.origin;
@@ -31,9 +32,6 @@ const UA = getRequestHeader('user-agent');
 const HOST = getRequestHeader('host');
 
 const requestPath = getRequestPath();
-
-let responseData = {};
-let monitorData = false;
 
 const log = msg => {
     logToConsole('[JSON Client] ' + msg);
@@ -60,12 +58,16 @@ if (requestPath === data.requestPath) {
     return;
 }
 
-const payloadToEvent = (payload) => {
-    const event = JSON.parse(payload);
-    if (getType(event) === 'object' && getType(event.data) === 'array') {
-        return { events: event.data };
-    }
-    return event;
+const payloadToEvents = (payload) => {
+  const parsedPayload = JSON.parse(payload);
+
+  // If the entire payload is an array → return directly
+  if (getType(parsedPayload) === 'array') {
+    return parsedPayload;
+  }
+
+  // If it is only a single event → pack into array
+  return [parsedPayload];
 };
 
 const addCommonEventData = (event) => {
@@ -139,7 +141,7 @@ const extendCookieLifetimes = () => {
     }
 };
 
-const sendResponse = (statusCode) => {
+const sendResponse = (statusCode, bodyData) => {
     // Prevent CORS errors
     if (data.enableCors) {
         setResponseHeader('Access-Control-Allow-Origin', origin);
@@ -154,11 +156,11 @@ const sendResponse = (statusCode) => {
     setResponseStatus(statusCode || 200);
 
     // set response body
-    if (statusCode == 200) {
-        if (Object.keys(responseData).length === 0) {
+    if (statusCode === 200) {
+        if (!bodyData || Object.keys(bodyData).length === 0) {
             setResponseBody(JSON.stringify({ status: 'ok' }));
         } else {
-            setResponseBody(JSON.stringify(responseData));
+            setResponseBody(JSON.stringify(bodyData));
         }
     }
 
@@ -181,71 +183,12 @@ const getOrDefault = (val, def) => {
     return typeof val === 'undefined' ? def : val;
 };
 
-// handle the request
-let event;
-// handle the various request methods
-const requestMethod = getRequestMethod();
-if (requestMethod === 'POST') {
-    event = payloadToEvent(getRequestBody());
-    // Set device cookie
-    if (data.setDeviceIdCookie) {
-        const deviceIdCookieEnabled = data.deviceIdCookieEnableEventDataPath ? getValueByPath(event, data.deviceIdCookieEnableEventDataPath) : true;
+const runContainerForEventPromise = (event) => {
+    return Promise.create((resolve) => {
+        let eventResponseData = {}; // per Event
+        let monitorData = [];
 
-        if (deviceIdCookieEnabled) {
-            // priotize client-side set device id if it is set
-            const eventClientId = event.client_id;
-
-            // Only set cookie if NO client-side value was sent
-            if (!eventClientId) {
-                event.client_id = setOrUpdateCookie(
-                    getOrDefault(data.deviceIdCookieName, 'fp_device_id'),
-                    getOrDefault(data.deviceIdCookieDomain, 'auto'),
-                    getOrDefault(data.deviceIdCookiePath, '/'),
-                    getOrDefault(data.deviceIdCookieSecure, true),
-                    getOrDefault(data.deviceIdCookieHttpOnly, true),
-                    getOrDefault(data.deviceIdCookieSameSite, 'Lax'),
-                    makeInteger(data.deviceIdCookieLifetime) * 24 * 60 * 60,
-                    generateUUIDv4()
-                );
-            }
-            // set response
-            responseData.device_id = event.client_id;
-        }
-    }
-
-    // set session cookie
-    if (data.setSessionIdCookie) {
-        const sessionIdCookieEnabled = data.sessionIdCookieEnableEventDataPath ? getValueByPath(event, data.sessionIdCookieEnableEventDataPath) : true;
-
-        if (sessionIdCookieEnabled) {
-            // priotize client-side set session id if it is set
-            const eventSessionId = event.session_id;
-
-            // Only set cookie if NO client-side value was sent
-            if (!eventSessionId) {
-                event.session_id = setOrUpdateCookie(
-                    getOrDefault(data.sessionIdCookieName, 'fp_session_id'),
-                    getOrDefault(data.sessionIdCookieDomain, 'auto'),
-                    getOrDefault(data.sessionIdCookiePath, '/'),
-                    getOrDefault(data.sessionIdCookieSecure, true),
-                    getOrDefault(data.sessionIdCookieHttpOnly, true),
-                    getOrDefault(data.sessionIdCookieSameSite, 'Lax'),
-                    makeInteger(data.sessionIdCookieLifetime) * 60,
-                    makeString(getTimestamp())
-                );
-            }
-            // set response
-            responseData.session_id = event.session_id;
-        }
-    }
-    // add common event data
-    event = addCommonEventData(event);
-    // extend cookie lifetimes for selected cookies
-    extendCookieLifetimes();
-    // run container
-    if (event) {
         runContainer(event, /*onComplete= */ (bindToEvent) => {
-            sendResponse(200);
             // server monitor event
             if ((data.monitorFailedTags || data.monitorSuccessfulTags) && event.event_name !== data.monitorEventName) {
                 bindToEvent(addEventCallback)((containerId, eventData) => {
@@ -254,13 +197,13 @@ if (requestMethod === 'POST') {
                     const sTags = tags.filter(tag => tag.status === 'success');
 
                     const sendEventWithoutCustomData = data.sendMonitorEventWithoutCustomData;
-                    const customMonitorDataCheckFailures = !monitorData && sendEventWithoutCustomData == 'onlySuccessfulTags' ? false : true;
+                    const customMonitorDataCheckFailures = monitorData.length === 0 && sendEventWithoutCustomData == 'onlySuccessfulTags' ? false : true;
                     const shouldMonitorFailures = data.monitorFailedTags && fTags.length > 0 && customMonitorDataCheckFailures;
-                    const customMonitorDataCheckSuccesses = !monitorData && sendEventWithoutCustomData == 'onlyFailedTags' ? false : true;
+                    const customMonitorDataCheckSuccesses = monitorData.length === 0 && sendEventWithoutCustomData == 'onlyFailedTags' ? false : true;
                     const shouldMonitorSuccesses = data.monitorSuccessfulTags && sTags.length > 0 && customMonitorDataCheckSuccesses;
 
                     if (shouldMonitorFailures || shouldMonitorSuccesses) {
-                        const monitorEvent = event;
+                        const monitorEvent = JSON.parse(JSON.stringify(event)); // deep clone
                         monitorEvent.event_name_original = event.event_name;
                         monitorEvent.event_name = data.monitorEventName;
                         monitorEvent.monitor = {};
@@ -271,43 +214,140 @@ if (requestMethod === 'POST') {
                         if (data.monitorSuccessfulTags && sTags.length > 0) {
                             monitorEvent.monitor.successful_tags = sTags;
                         }
-                        if (monitorData) {
+                        if (monitorData.length > 0) {
                             monitorEvent.monitor.services = monitorData;
                         }
-
+                        
                         runContainer(monitorEvent, () => {
                             // log('Monitor Event Fired:', monitorEvent);
                         });
-                    } else {
-                        // log('No monitor event fired – no relevant tags.');
                     }
                 });
             }
+
+            resolve(eventResponseData);
         }, /* onStart= */(bindToEvent) => {
             // listener for tag data for response
             bindToEvent(addMessageListener)('send_response', (messageType, message) => {
-                if (!responseData.tags) {
-                    responseData.tags = {};
+                if (!eventResponseData.tags) {
+                    eventResponseData.tags = {};
                 }
 
                 const keys = Object.keys(message);
                 if (keys.length > 0) {
                     const tag = keys[0];
-                    responseData.tags[tag] = message[tag];
+                    eventResponseData.tags[tag] = message[tag];
                 }
             });
             if (data.monitorFailedTags || data.monitorSuccessfulTags) {
                 // listener for monitor data
                 bindToEvent(addMessageListener)('server_monitor', (messageType, message) => {
-                    if (!monitorData) {
-                        monitorData = [];
-                    }
-
                     monitorData.push(message);
                 });
             }
         });
-    }
+    });
+};
+
+// handle the various request methods
+const requestMethod = getRequestMethod();
+if (requestMethod === 'POST') {
+    const events = payloadToEvents(getRequestBody());
+
+    // get existing cookie values
+    const existingDeviceIdCookies = getCookieValues(getOrDefault(data.deviceIdCookieName, 'fp_device_id'));
+    const existingSessionIdCookies = getCookieValues(getOrDefault(data.sessionIdCookieName, 'fp_session_id'));
+
+    const existingDeviceId = existingDeviceIdCookies.length > 0 ? existingDeviceIdCookies[0] : null;
+    const existingSessionId = existingSessionIdCookies.length > 0 ? existingSessionIdCookies[0] : null;
+
+    let lastDeviceId = existingDeviceId;
+    let lastSessionId = existingSessionId;
+
+    // Track whether client provided values
+    let clientProvidedDeviceId = false;
+    let clientProvidedSessionId = false;
+
+    const eventPromises = events.map((event) => {
+        // Track device ID if cookie should be set
+        if (data.setDeviceIdCookie) {
+            const deviceIdCookieEnabled = data.deviceIdCookieEnableEventDataPath ? getValueByPath(event, data.deviceIdCookieEnableEventDataPath) : true;
+            if (deviceIdCookieEnabled) {
+                // read existing client_id from event data or read existing cookie or generate new cookie value
+                if (event.client_id) clientProvidedDeviceId = true;
+                event.client_id = event.client_id || existingDeviceId || generateUUIDv4();
+                lastDeviceId = event.client_id;
+            }
+        }
+
+        // Track session ID if cookie should be set
+        if (data.setSessionIdCookie) {
+            const sessionIdCookieEnabled = data.sessionIdCookieEnableEventDataPath ? getValueByPath(event, data.sessionIdCookieEnableEventDataPath) : true;
+            if (sessionIdCookieEnabled) {
+                // read existing session_id from event data or read existing cookie or generate new cookie value
+                if (event.session_id) clientProvidedSessionId = true;
+                event.session_id = event.session_id || existingSessionId || makeString(getTimestampMillis());
+                lastSessionId = event.session_id;
+            }
+        }
+
+        // add common event data
+        event = addCommonEventData(event);
+
+        // add batched request indicator
+        if (events.length > 1) {
+            event.batched_request = event.batched_request || true;
+        }
+
+        // run container
+        return runContainerForEventPromise(event);
+    });
+
+    // After all events processed
+    Promise.all(eventPromises).then((allResponses) => {
+        // Set device/session cookies once using the last tracked IDs
+        if (!clientProvidedDeviceId && lastDeviceId) {
+            setOrUpdateCookie(
+                getOrDefault(data.deviceIdCookieName, 'fp_device_id'),
+                getOrDefault(data.deviceIdCookieDomain, 'auto'),
+                getOrDefault(data.deviceIdCookiePath, '/'),
+                getOrDefault(data.deviceIdCookieSecure, true),
+                getOrDefault(data.deviceIdCookieHttpOnly, true),
+                getOrDefault(data.deviceIdCookieSameSite, 'Lax'),
+                makeInteger(data.deviceIdCookieLifetime) * 24 * 60 * 60,
+                lastDeviceId
+            );
+        }
+
+        if (!clientProvidedSessionId && lastSessionId) {
+            setOrUpdateCookie(
+                getOrDefault(data.sessionIdCookieName, 'fp_session_id'),
+                getOrDefault(data.sessionIdCookieDomain, 'auto'),
+                getOrDefault(data.sessionIdCookiePath, '/'),
+                getOrDefault(data.sessionIdCookieSecure, true),
+                getOrDefault(data.sessionIdCookieHttpOnly, true),
+                getOrDefault(data.sessionIdCookieSameSite, 'Lax'),
+                makeInteger(data.sessionIdCookieLifetime) * 60,
+                lastSessionId
+            );
+        }
+
+        // extend cookie lifetimes for selected cookies
+        extendCookieLifetimes();
+
+        // Prepare final response
+        const responseData = {
+            events_processed: events.length,
+            responses: allResponses,
+            device_id: lastDeviceId,
+            session_id: lastSessionId
+        };
+
+        sendResponse(200, responseData);
+    }).catch((err) => {
+        log('Error while processing events: ' + err);
+        sendResponse(500, { error: 'internal_error' });
+    });
 } else if (requestMethod === 'OPTIONS') {
     sendResponse(204);
 }

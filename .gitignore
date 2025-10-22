@@ -1,2 +1,3 @@
 source/server-gtm-sandboxed-apis.d.ts
 source/jsconfig.json
+source/test_request.rest
