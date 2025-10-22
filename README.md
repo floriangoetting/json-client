@@ -181,6 +181,29 @@ The same principle applies to webviews:
 
 This logic is also part of the [Android Test App](https://github.com/floriangoetting/json-tag-test-app-android) and can be adapted to your project setup.
 
+## Sending Batch Requests
+JSON Client can also handle multiple events in one request. Currently JSON Tag does not support this, but if you send your events from your Native App or via another custom method to JSON Client, you can also utilize the feature. This can be handy if you want to send multiple queued events in one single server call to JSON Client. To utilize it, simply send the events as an array. The usual way to just send a single event as an object is still supported as well. Checkout the following examples.
+
+### Single Event Payload in Object Syntax
+```javascript
+   {"event_name": "page_view", "event_type": "view"}
+```
+
+### Single Event Payload in Array Syntax
+```javascript
+   [
+       {"event_name": "page_view", "event_type": "view"}
+   ]
+```
+
+### Multiple Event Payload in Array Syntax
+```javascript
+   [
+      {"event_name": "page_view", "event_type": "view"},
+      {"event_name": "add_to_cart", "event_type": "callback"}
+   ]
+```
+
 ## How to contribute to the Template
 Contributions to any of the Templates are highly welcome! The process to contribute works like this:
 
