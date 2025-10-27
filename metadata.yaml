@@ -1,6 +1,8 @@
 homepage: "https://www.floriangoetting.de"
 documentation: "https://github.com/floriangoetting/json-client"
 versions:
+  - sha: xxx
+    changeNotes: Add batched_request_size to event data to indicate the number of events in a batched request. Remove empty response objects from responses array.
   - sha: 9ecff6ffb280a622935f3c4d37a3b9643bd167d4
     changeNotes: Support for batched requests added. Please refer to the documentation for more details.
   - sha: bd65e40ab6a2726f5f5c39e7e74e47de1101f2ee

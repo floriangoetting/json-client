@@ -934,6 +934,7 @@ if (requestMethod === 'POST') {
         // add batched request indicator
         if (events.length > 1) {
             event.batched_request = event.batched_request || true;
+            event.batched_request_size = event.batched_request_size || events.length;
         }
 
         // run container
@@ -972,10 +973,15 @@ if (requestMethod === 'POST') {
         // extend cookie lifetimes for selected cookies
         extendCookieLifetimes();
 
+        // Filter empty objects from responses
+        const filteredResponses = allResponses.filter(resp => {
+            return resp && Object.keys(resp).length > 0;
+        });
+
         // Prepare final response
         const responseData = {
             events_processed: events.length,
-            responses: allResponses,
+            responses: filteredResponses, // always an array, may be empty
             device_id: lastDeviceId,
             session_id: lastSessionId
         };
