@@ -923,7 +923,7 @@ if (requestMethod === 'POST') {
             if (sessionIdCookieEnabled) {
                 // read existing session_id from event data or read existing cookie or generate new cookie value
                 if (event.session_id) clientProvidedSessionId = true;
-                event.session_id = event.session_id || existingSessionId || makeString(getTimestampMillis());
+                event.session_id = event.session_id || makeInteger(existingSessionId) || getTimestampMillis();
                 lastSessionId = event.session_id;
             }
         }
@@ -966,7 +966,7 @@ if (requestMethod === 'POST') {
                 getOrDefault(data.sessionIdCookieHttpOnly, true),
                 getOrDefault(data.sessionIdCookieSameSite, 'Lax'),
                 makeInteger(data.sessionIdCookieLifetime) * 60,
-                lastSessionId
+                makeString(lastSessionId)
             );
         }
 
