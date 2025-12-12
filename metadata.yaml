@@ -1,7 +1,7 @@
 homepage: "https://www.floriangoetting.de"
 documentation: "https://github.com/floriangoetting/json-client"
 versions:
-  - sha: xxx
+  - sha: ef6b3e1edbd335727011c6d2d8cb2399662685f0
     changeNotes: Changed session_id from string to integer in event data and json client response
   - sha: c6e1b25c8560556543cc8c7ec4809c9a3808f519
     changeNotes: Add batched_request_size to event data to indicate the number of events in a batched request. Remove empty response objects from responses array.
