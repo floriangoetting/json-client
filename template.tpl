@@ -741,8 +741,8 @@ const setOrUpdateCookie = (cookieName, domain, cookiePath, cookieSecure, cookieH
     const existingCookieValues = getCookieValues(cookieName);
     const existingCookie = existingCookieValues.length > 0 ? existingCookieValues[0] : null;
 
-    // Generate a new value if no existing cookie is found
-    const cookieValue = existingCookie || value;
+    // new value has priority over existing cookie value
+    const cookieValue = value || existingCookie;
 
     // cookie value might be null or false if no existing cookie is found and no new cookie value is specified
     if (!cookieValue) return false;
@@ -901,17 +901,12 @@ if (requestMethod === 'POST') {
     let lastDeviceId = existingDeviceId;
     let lastSessionId = existingSessionId;
 
-    // Track whether client provided values
-    let clientProvidedDeviceId = false;
-    let clientProvidedSessionId = false;
-
     const eventPromises = events.map((event) => {
         // Track device ID if cookie should be set
         if (data.setDeviceIdCookie) {
             const deviceIdCookieEnabled = data.deviceIdCookieEnableEventDataPath ? getValueByPath(event, data.deviceIdCookieEnableEventDataPath) : true;
             if (deviceIdCookieEnabled) {
                 // read existing client_id from event data or read existing cookie or generate new cookie value
-                if (event.client_id) clientProvidedDeviceId = true;
                 event.client_id = event.client_id || existingDeviceId || generateUUIDv4();
                 lastDeviceId = event.client_id;
             }
@@ -922,7 +917,6 @@ if (requestMethod === 'POST') {
             const sessionIdCookieEnabled = data.sessionIdCookieEnableEventDataPath ? getValueByPath(event, data.sessionIdCookieEnableEventDataPath) : true;
             if (sessionIdCookieEnabled) {
                 // read existing session_id from event data or read existing cookie or generate new cookie value
-                if (event.session_id) clientProvidedSessionId = true;
                 event.session_id = event.session_id || makeInteger(existingSessionId) || getTimestampMillis();
                 lastSessionId = event.session_id;
             }
@@ -944,7 +938,7 @@ if (requestMethod === 'POST') {
     // After all events processed
     Promise.all(eventPromises).then((allResponses) => {
         // Set device/session cookies once using the last tracked IDs
-        if (!clientProvidedDeviceId && lastDeviceId) {
+        if (lastDeviceId) {
             setOrUpdateCookie(
                 getOrDefault(data.deviceIdCookieName, 'fp_device_id'),
                 getOrDefault(data.deviceIdCookieDomain, 'auto'),
@@ -957,7 +951,7 @@ if (requestMethod === 'POST') {
             );
         }
 
-        if (!clientProvidedSessionId && lastSessionId) {
+        if (lastSessionId) {
             setOrUpdateCookie(
                 getOrDefault(data.sessionIdCookieName, 'fp_session_id'),
                 getOrDefault(data.sessionIdCookieDomain, 'auto'),

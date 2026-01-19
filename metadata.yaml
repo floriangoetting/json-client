@@ -1,6 +1,8 @@
 homepage: "https://www.floriangoetting.de"
 documentation: "https://github.com/floriangoetting/json-client"
 versions:
+  - sha: xxx
+    changeNotes: Support overwriting already existing device id and session id cookies if client_id and sesion_id is set directly in the payload. This is an important use case for App Webviews.
   - sha: ef6b3e1edbd335727011c6d2d8cb2399662685f0
     changeNotes: Changed session_id from string to integer in event data and json client response
   - sha: c6e1b25c8560556543cc8c7ec4809c9a3808f519
