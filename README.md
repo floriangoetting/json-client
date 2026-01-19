@@ -163,8 +163,8 @@ It is not an issue that requests from native apps do not contain an Origin heade
 ### Managing Device and Session IDs in Native Apps
 Since native apps do not support cookies, a custom mechanism must be implemented to persist the device ID and session ID.
 
-On the first tracking call, the JSON Client generates a new device ID and session ID, which are returned in the response.
-The app must then store this information locally and include both IDs in subsequent requests—either by:
+It is recommended that the Native App generates the Device ID and Session ID and persists it in the application. The device id needs to be a valid UUID and the session id needs to be a timestamp in milliseconds since epoch.
+There are two methods available to send the ids to the ssGTM:
 
 1. adding them to the payload (“client_id” for the device ID and “session_id” for the session ID), or
 2. sending them as cookie headers using the cookie names defined by the JSON Client.
@@ -174,12 +174,11 @@ If both the payload and cookies contain client_id and session_id, the values in 
 This method is implemented in the [Android Test App](https://github.com/floriangoetting/json-tag-test-app-android) and can be customized for your app.
 
 ### Support for App Webviews
-The same principle applies to webviews:
+To ensure that the same device id and session id is used in both the Native App and the App Webview, you need to ensure the following:
 
-1. Inject the device and session cookies into the webview using the configured cookie names.
-2. This ensures the JSON Client reuses existing IDs rather than generating new ones.
-
-This logic is also part of the [Android Test App](https://github.com/floriangoetting/json-tag-test-app-android) and can be adapted to your project setup.
+1. Inject the device and session id as cookies into the webview using different cookie names than configured in JSON Client.
+2. Adjust the JSON Tag Settings variable in your client side GTM which runs in the App Webview to send the cookie values from step 1 as client_id and session_id in the JSON payloads.
+2. This ensures the JSON Client uses these ids in the Webview rather than using aready stored cookie values or generating new ones.
 
 ## Sending Batch Requests
 JSON Client can also handle multiple events in one request. Currently JSON Tag does not support this, but if you send your events from your Native App or via another custom method to JSON Client, you can also utilize the feature. This can be handy if you want to send multiple queued events in one single server call to JSON Client. To utilize it, simply send the events as an array. The usual way to just send a single event as an object is still supported as well. Checkout the following examples.
