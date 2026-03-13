@@ -25,6 +25,7 @@ const createRegex = require('createRegex');
 const testRegex = require('testRegex');
 const addMessageListener = require('addMessageListener');
 const Promise = require('Promise');
+const fromBase64 = require('fromBase64');
 
 const requestParams = getRequestQueryParameters();
 const origin = getRequestHeader('origin') || (!!getRequestHeader('referer') && parseUrl(getRequestHeader('referer')).origin) || requestParams.origin;
@@ -47,27 +48,61 @@ const validateOrigin = () => {
 };
 
 // check if client should claim the request
-if (requestPath === data.requestPath) {
-    if (!validateOrigin()) {
-        log('Request originated from invalid origin');
-        return;
-    }
-    // claim the request
-    claimRequest();
-} else {
+let isBase64Encoded = false;
+if (requestPath === data.requestPath + '/ba') {
+    isBase64Encoded = true;
+} else if (requestPath !== data.requestPath) {
     return;
 }
 
+if (!validateOrigin()) {
+    log('Request originated from invalid origin');
+    return;
+}
+
+// claim the request
+claimRequest();
+
 const payloadToEvents = (payload) => {
-  const parsedPayload = JSON.parse(payload);
+    if (payload === undefined || payload === null) {
+        return null;
+    }
 
-  // If the entire payload is an array → return directly
-  if (getType(parsedPayload) === 'array') {
-    return parsedPayload;
-  }
+    // getRequestBody should return a string, but be defensive
+    if (getType(payload) !== 'string') {
+        payload = makeString(payload);
+    }
 
-  // If it is only a single event → pack into array
-  return [parsedPayload];
+    if (isBase64Encoded) {
+        // if payload is base64 encoded, decode it
+        payload = fromBase64(payload);
+        if (payload === undefined || payload === null) {
+            return null;
+        }
+    }
+
+    payload = payload.trim();
+    if (payload.length === 0) {
+        return null;
+    }
+
+    // Note: in the sGTM sandbox, JSON.parse is expected to be safe to call
+    const parsedPayload = JSON.parse(payload);
+    if (parsedPayload === undefined || parsedPayload === null) {
+        return null;
+    }
+
+    // If the entire payload is an array -> return directly
+    if (getType(parsedPayload) === 'array') {
+        return parsedPayload;
+    }
+
+    // If it is only a single event -> pack into array
+    if (getType(parsedPayload) === 'object') {
+        return [parsedPayload];
+    }
+
+    return null;
 };
 
 const addCommonEventData = (event) => {
@@ -253,6 +288,11 @@ const runContainerForEventPromise = (event) => {
 const requestMethod = getRequestMethod();
 if (requestMethod === 'POST') {
     const events = payloadToEvents(getRequestBody());
+    if (events === null) {
+        log('Invalid request payload');
+        sendResponse(400);
+        return;
+    }
 
     // get existing cookie values
     const existingDeviceIdCookies = getCookieValues(getOrDefault(data.deviceIdCookieName, 'fp_device_id'));

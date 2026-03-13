@@ -1,6 +1,8 @@
 homepage: "https://www.floriangoetting.de"
 documentation: "https://github.com/floriangoetting/json-client"
 versions:
+  - sha: xyz
+    changeNotes: Added support for base64 encoded payloads in the request body. The sub path /ba is used to indicate that the playload is base64 encoded. To utilize this feature, an update of JSON Tag and JSON Tag Variable including the newest library version is required.
   - sha: d266e6ca45f30cdf9092d7ff020e56b29ddcd6b7
     changeNotes: Support overwriting already existing device id and session id cookies if client_id and sesion_id is set directly in the payload. This is an important use case for App Webviews.
   - sha: ef6b3e1edbd335727011c6d2d8cb2399662685f0
