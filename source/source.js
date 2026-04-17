@@ -385,7 +385,7 @@ if (requestMethod === 'POST') {
 
         sendResponse(200, responseData);
     }).catch((err) => {
-        log('Error while processing events: ' + err);
+        log('Error while processing events: ' + JSON.stringify(err));
         sendResponse(500, { error: 'internal_error' });
     });
 } else if (requestMethod === 'OPTIONS') {
