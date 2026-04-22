@@ -976,7 +976,19 @@ if (requestMethod === 'POST') {
     });
 
     // After all events processed
+    const responseData = {};
     Promise.all(eventPromises).then((allResponses) => {
+        // Filter empty objects from responses
+        const filteredResponses = allResponses.filter(resp => {
+            return resp && Object.keys(resp).length > 0;
+        });
+        responseData.responses = filteredResponses; // array of responses from container for each event, may be empty
+    }).catch((err) => {
+        log('Error while processing events: ' + JSON.stringify(err));
+        // in case the promise rejects we will send an error response with status 200 to avoid retries from the client, and include the error message in the response body
+        responseData.responses = [];
+        responseData.error = err;
+    }).finally(() => {
         // Set device/session cookies once using the last tracked IDs
         if (lastDeviceId) {
             setOrUpdateCookie(
@@ -1007,23 +1019,12 @@ if (requestMethod === 'POST') {
         // extend cookie lifetimes for selected cookies
         extendCookieLifetimes();
 
-        // Filter empty objects from responses
-        const filteredResponses = allResponses.filter(resp => {
-            return resp && Object.keys(resp).length > 0;
-        });
-
         // Prepare final response
-        const responseData = {
-            events_processed: events.length,
-            responses: filteredResponses, // always an array, may be empty
-            device_id: lastDeviceId,
-            session_id: lastSessionId
-        };
+        responseData.events_processed = events.length;
+        responseData.device_id = lastDeviceId;
+        responseData.session_id = lastSessionId;
 
         sendResponse(200, responseData);
-    }).catch((err) => {
-        log('Error while processing events: ' + JSON.stringify(err));
-        sendResponse(500, { error: 'internal_error' });
     });
 } else if (requestMethod === 'OPTIONS') {
     sendResponse(204);

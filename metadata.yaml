@@ -1,6 +1,8 @@
 homepage: "https://www.floriangoetting.de"
 documentation: "https://github.com/floriangoetting/json-client"
 versions:
+  - sha: xyz
+    changeNotes: Ensure that the retry mechanism and batching of JSON Tag requests is only used in case the Server Container is not reachable at all or no internet connection exists. If one of the Server Tags have a timeout or returns an error, this will not trigger the retry mechanism anymore.
   - sha: 0f5d74aab71785428e8631080d13eabbf09a4b37
     changeNotes: Fix logging of promise rejections in the server container. Please be aware that this change does not fix the underlying issue of unhandled promise rejections in the server container, but at least ensures that they are properly logged and can be identified and fixed.
   - sha: cda75b96fa5ec046cd7ee5cdb63cad8f124ab927
