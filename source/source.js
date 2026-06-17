@@ -186,6 +186,11 @@ const sendResponse = (statusCode, bodyData) => {
             'Content-Type, Content-Encoding, Accept-Encoding, X-Gtm-Server-Preview, X-Keepalive-Request'
         );
         setResponseHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+
+        // Serve Access-Control-Max-Age on the preflight OPTIONS requests
+        if (getRequestMethod() === 'OPTIONS') {
+            setResponseHeader('Access-Control-Max-Age', '86400');
+        }
     }
     setResponseHeader('Content-Type', 'application/json;charset=UTF-8');
     setResponseStatus(statusCode || 200);
