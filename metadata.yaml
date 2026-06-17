@@ -1,6 +1,8 @@
 homepage: "https://www.floriangoetting.de"
 documentation: "https://github.com/floriangoetting/json-client"
 versions:
+  - sha: 63ddcb30a09c8d1dd065eb4f8728202fbb84c806
+    changeNotes: Merged perf: optimize CORS performance by caching preflight OPTIONS requests #2
   - sha: fbf3bfeb6267f8dd6f83d5853d5fa1fc5dcdd12e
     changeNotes: Ensure that the retry mechanism and batching of JSON Tag requests is only used in case the Server Container is not reachable at all or no internet connection exists. If one of the Server Tags have a timeout or returns an error, this will not trigger the retry mechanism anymore.
   - sha: 0f5d74aab71785428e8631080d13eabbf09a4b37
