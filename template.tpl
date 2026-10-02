@@ -774,12 +774,14 @@ const generateUUIDv4 = () => {
 };
 
 const setOrUpdateCookie = (cookieName, domain, cookiePath, cookieSecure, cookieHttpOnly, cookieSameSite, duration, value) => {
-    // Retrieve the existing cookie value
-    const existingCookieValues = getCookieValues(cookieName);
-    const existingCookie = existingCookieValues.length > 0 ? existingCookieValues[0] : null;
+    let cookieValue = value;
 
-    // new value has priority over existing cookie value
-    const cookieValue = value || existingCookie;
+    if (!cookieValue) {
+        // Retrieve the existing cookie value only when no explicit value is provided.
+        const existingCookieValues = getCookieValues(cookieName);
+        const existingCookie = existingCookieValues.length > 0 ? existingCookieValues[0] : null;
+        cookieValue = existingCookie;
+    }
 
     // cookie value might be null or false if no existing cookie is found and no new cookie value is specified
     if (!cookieValue) return false;
