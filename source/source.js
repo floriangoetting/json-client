@@ -112,6 +112,7 @@ const addCommonEventData = (event) => {
     if (origin && !event.origin) event.origin = origin;
     if (!event.host) event.host = HOST;
     if (!event.user_agent) event.user_agent = UA;
+    if (!event.timestamp) event.timestamp = getTimestampMillis();
 
     return event;
 };
