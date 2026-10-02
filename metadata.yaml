@@ -1,6 +1,8 @@
 homepage: "https://www.floriangoetting.de"
 documentation: "https://github.com/floriangoetting/json-client"
 versions:
+  - sha: 4a19ace59569458cfd1473054772bf5a61dba2c5
+    changeNotes: The current timestamp in milliseconds is now added to the event data if the incoming event does not already contain a timestamp. Existing cookies are only read when no new cookie value is set.
   - sha: 63ddcb30a09c8d1dd065eb4f8728202fbb84c806
     changeNotes: Merged perf: optimize CORS performance by caching preflight OPTIONS requests #2
   - sha: fbf3bfeb6267f8dd6f83d5853d5fa1fc5dcdd12e
