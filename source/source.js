@@ -162,12 +162,51 @@ const setOrUpdateCookie = (cookieName, domain, cookiePath, cookieSecure, cookieH
     return cookieValue;
 };
 
-const extendCookieLifetimes = () => {
+const deleteCookie = (cookieName, domain, cookiePath, cookieSecure, cookieHttpOnly, cookieSameSite) => {
+    setCookie(cookieName, '', {
+        'max-age': 0,
+        'domain': domain,
+        'path': cookiePath,
+        'secure': cookieSecure,
+        'httpOnly': cookieHttpOnly,
+        'sameSite': cookieSameSite
+    });
+};
+
+const setOrDeleteIdCookie = (cookieSettings, value, shouldSetCookie, shouldDeleteCookie) => {
+    if (value && shouldSetCookie) {
+        setOrUpdateCookie(
+            cookieSettings.name,
+            cookieSettings.domain,
+            cookieSettings.path,
+            cookieSettings.secure,
+            cookieSettings.httpOnly,
+            cookieSettings.sameSite,
+            cookieSettings.duration,
+            value
+        );
+    } else if (shouldDeleteCookie) {
+        deleteCookie(
+            cookieSettings.name,
+            cookieSettings.domain,
+            cookieSettings.path,
+            cookieSettings.secure,
+            cookieSettings.httpOnly,
+            cookieSettings.sameSite
+        );
+    }
+};
+
+const extendCookieLifetimes = (excludedCookieNames) => {
     if (typeof data.cookiesToExtend === 'undefined' || data.cookiesToExtend.length === 0) {
         return false;
     }
 
     for (let i = 0; i < data.cookiesToExtend.length; i++) {
+        if (excludedCookieNames && excludedCookieNames.indexOf(data.cookiesToExtend[i].cookieName) > -1) {
+            continue;
+        }
+
         //the maximum duration of 400 days is used, no value is passed to avoid creating new cookies
         setOrUpdateCookie(
             data.cookiesToExtend[i].cookieName,
@@ -302,35 +341,82 @@ if (requestMethod === 'POST') {
         return;
     }
 
-    // get existing cookie values
-    const existingDeviceIdCookies = getCookieValues(getOrDefault(data.deviceIdCookieName, 'fp_device_id'));
-    const existingSessionIdCookies = getCookieValues(getOrDefault(data.sessionIdCookieName, 'fp_session_id'));
+    const enableDeviceId = data.setDeviceIdCookie; //added for backwards compatibility to older JSON client versions
+    const enabledSessionId = data.setSessionIdCookie; //added for backwards compatibility to older JSON client versions
+    // consent is only checked if a path to the consent boolean in the event data is configured
+    const deviceIdConsentPath = data.deviceIdCookieEnableEventDataPath || null;
+    const sessionIdConsentPath = data.sessionIdCookieEnableEventDataPath || null;
 
-    const existingDeviceId = existingDeviceIdCookies.length > 0 ? existingDeviceIdCookies[0] : null;
-    const existingSessionId = existingSessionIdCookies.length > 0 ? existingSessionIdCookies[0] : null;
+    let existingDeviceId = null;
+    let existingSessionId = null;
+    let existingDeviceIdLoaded = false;
+    let existingSessionIdLoaded = false;
+    let lastDeviceId = null;
+    let lastSessionId = null;
+    let shouldSetDeviceIdCookie = false;
+    let shouldSetSessionIdCookie = false;
+    let shouldDeleteDeviceIdCookie = false;
+    let shouldDeleteSessionIdCookie = false;
+    let generatedDeviceId = null;
+    let generatedSessionId = null;
 
-    let lastDeviceId = existingDeviceId;
-    let lastSessionId = existingSessionId;
+    const getExistingDeviceId = () => {
+        if (!existingDeviceIdLoaded) {
+            const existingDeviceIdCookies = getCookieValues(getOrDefault(data.deviceIdCookieName, 'fp_device_id'));
+            existingDeviceId = existingDeviceIdCookies.length > 0 ? existingDeviceIdCookies[0] : null;
+            existingDeviceIdLoaded = true;
+        }
+        return existingDeviceId;
+    };
+
+    const getExistingSessionId = () => {
+        if (!existingSessionIdLoaded) {
+            const existingSessionIdCookies = getCookieValues(getOrDefault(data.sessionIdCookieName, 'fp_session_id'));
+            existingSessionId = existingSessionIdCookies.length > 0 ? existingSessionIdCookies[0] : null;
+            existingSessionIdLoaded = true;
+        }
+        return existingSessionId;
+    };
 
     const eventPromises = events.map((event) => {
-        // Track device ID if cookie should be set
-        if (data.setDeviceIdCookie) {
-            const deviceIdCookieEnabled = data.deviceIdCookieEnableEventDataPath ? getValueByPath(event, data.deviceIdCookieEnableEventDataPath) : true;
-            if (deviceIdCookieEnabled) {
-                // read existing client_id from event data or read existing cookie or generate new cookie value
-                event.client_id = event.client_id || existingDeviceId || generateUUIDv4();
-                lastDeviceId = event.client_id;
+        // only set device id if activated in the JSON client settings
+        if (enableDeviceId) {
+            const deviceIdCookieEnabled = deviceIdConsentPath ? getValueByPath(event, deviceIdConsentPath) : true;
+            if (deviceIdCookieEnabled && !generatedDeviceId) {
+                generatedDeviceId = generateUUIDv4();
             }
+            const existingConsentedDeviceId = deviceIdCookieEnabled ? getExistingDeviceId() : null;
+            const candidateDeviceId = deviceIdCookieEnabled ? generatedDeviceId : data.cookielessDeviceId;
+
+            const selectedDeviceId = event.client_id || existingConsentedDeviceId || candidateDeviceId;
+            // prefer client_id from event data, then existing cookie with consent, then consent-based candidate id
+            if (selectedDeviceId) {
+                event.client_id = selectedDeviceId;
+            }
+            lastDeviceId = selectedDeviceId || null;
+            shouldSetDeviceIdCookie = deviceIdCookieEnabled;
+            // only delete the cookie if it is present in the request to avoid unnecessary response headers
+            shouldDeleteDeviceIdCookie = !deviceIdCookieEnabled && getExistingDeviceId() !== null;
         }
 
-        // Track session ID if cookie should be set
-        if (data.setSessionIdCookie) {
-            const sessionIdCookieEnabled = data.sessionIdCookieEnableEventDataPath ? getValueByPath(event, data.sessionIdCookieEnableEventDataPath) : true;
-            if (sessionIdCookieEnabled) {
-                // read existing session_id from event data or read existing cookie or generate new cookie value
-                event.session_id = event.session_id || makeInteger(existingSessionId) || getTimestampMillis();
-                lastSessionId = event.session_id;
+        // only set session id if activated in the JSON client settings
+        if (enabledSessionId) {
+            const sessionIdCookieEnabled = sessionIdConsentPath ? getValueByPath(event, sessionIdConsentPath) : true;
+            if (sessionIdCookieEnabled && !generatedSessionId) {
+                generatedSessionId = getTimestampMillis();
             }
+            const existingConsentedSessionId = sessionIdCookieEnabled ? getExistingSessionId() : null;
+            const candidateSessionId = sessionIdCookieEnabled ? generatedSessionId : null;
+
+            const selectedSessionId = event.session_id || makeInteger(existingConsentedSessionId) || candidateSessionId;
+            // prefer session_id from event data, then existing cookie with consent, then consent-based candidate id
+            if (selectedSessionId) {
+                event.session_id = selectedSessionId;
+            }
+            lastSessionId = selectedSessionId || null;
+            shouldSetSessionIdCookie = sessionIdCookieEnabled;
+            // only delete the cookie if it is present in the request to avoid unnecessary response headers
+            shouldDeleteSessionIdCookie = !sessionIdCookieEnabled && getExistingSessionId() !== null;
         }
 
         // add common event data
@@ -360,35 +446,34 @@ if (requestMethod === 'POST') {
         responseData.responses = [];
         responseData.error = err;
     }).finally(() => {
-        // Set device/session cookies once using the last tracked IDs
-        if (lastDeviceId) {
-            setOrUpdateCookie(
-                getOrDefault(data.deviceIdCookieName, 'fp_device_id'),
-                getOrDefault(data.deviceIdCookieDomain, 'auto'),
-                getOrDefault(data.deviceIdCookiePath, '/'),
-                getOrDefault(data.deviceIdCookieSecure, true),
-                getOrDefault(data.deviceIdCookieHttpOnly, true),
-                getOrDefault(data.deviceIdCookieSameSite, 'Lax'),
-                makeInteger(data.deviceIdCookieLifetime) * 24 * 60 * 60,
-                lastDeviceId
-            );
-        }
+        const deviceIdCookieSettings = {
+            name: getOrDefault(data.deviceIdCookieName, 'fp_device_id'),
+            domain: getOrDefault(data.deviceIdCookieDomain, 'auto'),
+            path: getOrDefault(data.deviceIdCookiePath, '/'),
+            secure: getOrDefault(data.deviceIdCookieSecure, true),
+            httpOnly: getOrDefault(data.deviceIdCookieHttpOnly, true),
+            sameSite: getOrDefault(data.deviceIdCookieSameSite, 'Lax'),
+            duration: makeInteger(data.deviceIdCookieLifetime) * 24 * 60 * 60
+        };
+        const sessionIdCookieSettings = {
+            name: getOrDefault(data.sessionIdCookieName, 'fp_session_id'),
+            domain: getOrDefault(data.sessionIdCookieDomain, 'auto'),
+            path: getOrDefault(data.sessionIdCookiePath, '/'),
+            secure: getOrDefault(data.sessionIdCookieSecure, true),
+            httpOnly: getOrDefault(data.sessionIdCookieHttpOnly, true),
+            sameSite: getOrDefault(data.sessionIdCookieSameSite, 'Lax'),
+            duration: makeInteger(data.sessionIdCookieLifetime) * 60
+        };
 
-        if (lastSessionId) {
-            setOrUpdateCookie(
-                getOrDefault(data.sessionIdCookieName, 'fp_session_id'),
-                getOrDefault(data.sessionIdCookieDomain, 'auto'),
-                getOrDefault(data.sessionIdCookiePath, '/'),
-                getOrDefault(data.sessionIdCookieSecure, true),
-                getOrDefault(data.sessionIdCookieHttpOnly, true),
-                getOrDefault(data.sessionIdCookieSameSite, 'Lax'),
-                makeInteger(data.sessionIdCookieLifetime) * 60,
-                makeString(lastSessionId)
-            );
-        }
+        // Set or delete device/session cookies once using the last tracked consent state
+        setOrDeleteIdCookie(deviceIdCookieSettings, lastDeviceId, shouldSetDeviceIdCookie, shouldDeleteDeviceIdCookie);
+        setOrDeleteIdCookie(sessionIdCookieSettings, lastSessionId ? makeString(lastSessionId) : null, shouldSetSessionIdCookie, shouldDeleteSessionIdCookie);
 
         // extend cookie lifetimes for selected cookies
-        extendCookieLifetimes();
+        const excludedCookieNames = [];
+        if (shouldDeleteDeviceIdCookie) excludedCookieNames.push(deviceIdCookieSettings.name);
+        if (shouldDeleteSessionIdCookie) excludedCookieNames.push(sessionIdCookieSettings.name);
+        extendCookieLifetimes(excludedCookieNames);
 
         // Prepare final response
         responseData.events_processed = events.length;
