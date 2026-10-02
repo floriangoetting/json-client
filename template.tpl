@@ -59,14 +59,14 @@ ___TEMPLATE_PARAMETERS___
   },
   {
     "type": "GROUP",
-    "name": "cookieSettings",
-    "displayName": "Cookie Settings",
+    "name": "identifierSettings",
+    "displayName": "Device and Session Identifier Settings",
     "groupStyle": "ZIPPY_CLOSED",
     "subParams": [
       {
         "type": "GROUP",
-        "name": "deviceIdCookieSettings",
-        "displayName": "Device ID Cookie Settings",
+        "name": "deviceIdSettings",
+        "displayName": "Device ID Settings",
         "groupStyle": "NO_ZIPPY",
         "subParams": [
           {
@@ -234,8 +234,8 @@ ___TEMPLATE_PARAMETERS___
       },
       {
         "type": "GROUP",
-        "name": "sessionIdCookieSettings",
-        "displayName": "Session ID Cookie Settings",
+        "name": "sessionIdSettings",
+        "displayName": "Session ID Settings",
         "groupStyle": "NO_ZIPPY",
         "subParams": [
           {
@@ -399,7 +399,15 @@ ___TEMPLATE_PARAMETERS___
             ]
           }
         ]
-      },
+      }
+    ]
+  },
+  {
+    "type": "GROUP",
+    "name": "cookieSettings",
+    "displayName": "Cookie Settings",
+    "groupStyle": "ZIPPY_CLOSED",
+    "subParams": [
       {
         "type": "GROUP",
         "name": "extendCookieSettings",
