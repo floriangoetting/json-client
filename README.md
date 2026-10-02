@@ -25,12 +25,15 @@ Configure the JSON Client according to your needs and save it.
 #### Request Path
 Please define the Path under which you want the Endpoint to be available. This path needs to match the path which is configured in the JSON Tag Variable in the client-side GTM (See: https://github.com/floriangoetting/json-tag-variable?tab=readme-ov-file#endpoint-path).
 
-### Cookie Settings
-#### Set Device ID Cookie
-If this option is enabled, a UUID v4 will be generated and will set a server-side Cookie with the configured settings. This can be used to reidentify the device of a visitor.
+### Device and Session Identifier Settings
+#### Enable Device ID
+If this option is enabled, a UUID v4 will be generated and will set a server-side Cookie with the configured settings. This can be used to reidentify the device of a visitor. If the event data already contains a client_id, it has priority over the cookie value.
 
-#### Path to Event Data with Device ID Cookie Enablement Status
-This field can contain the Path to Event Data which contains a boolean value to define dynamically if the Device ID Cookie should be set or not. For example this could be a consent boolean for a service for which this cookie is relevant. If no Event Data is specified, the Device ID Cookie will be set in any case.
+#### Path to Event Data which specifies Device ID Cookie Consent
+This field can contain the Path to Event Data which contains a boolean value to define dynamically if the Device ID Cookie should be set or not. For example this could be a consent boolean for a service for which this cookie is relevant. If no Event Data path is specified, the Device ID Cookie will be set in any case. If a path is specified and the value is not true, an existing Device ID Cookie will be deleted and the Cookieless Device ID will be used instead.
+
+#### Cookieless Device ID
+This field is only available if a Path to Event Data for the Device ID Cookie Consent is specified. Optional value which is used as client_id if no consent for the Device ID Cookie is given. No cookie will be set in this case. Usually you will select a variable here which returns the cookieless identifier instead of entering a hardcoded value, because a static value would be identical for all visitors without consent. If you leave this field empty, no client_id will be set without consent unless it is already present in the event data. This is useful if the receiving tool generates its own identifier (e.g. Matomo).
 
 #### Device ID Cookie Name
 In this field you can specify the name of your server-side Device ID cookie.
@@ -53,11 +56,11 @@ With the HttpOnly Flag enabled, you make sure, that the cookies can not be read 
 #### SameSite Attribute
 This attribute defines whether the cookies are sent with cross-site requests.
 
-#### Set Session ID Cookie
-If this option is enabled, a unix timestamp in milliseconds will be generated and will set a server-side Cookie with the configured settings. This can be used to identify the session of a visitor.
+#### Enable Session ID
+If this option is enabled, a unix timestamp in milliseconds will be generated and will set a server-side Cookie with the configured settings. This can be used to identify the session of a visitor. If the event data already contains a session_id, it has priority over the cookie value.
 
-#### Path to Event Data with Session ID Cookie Enablement Status
-This field can contain the Path to Event Data which contains a boolean value to define dynamically if the Session ID Cookie should be set or not. For example this could be a consent boolean for a service for which this cookie is relevant. If no Event Data is specified, the Session ID Cookie will be set in any case.
+#### Path to Event Data which specifies Session ID Cookie Consent
+This field can contain the Path to Event Data which contains a boolean value to define dynamically if the Session ID Cookie should be set or not. For example this could be a consent boolean for a service for which this cookie is relevant. If no Event Data path is specified, the Session ID Cookie will be set in any case. If a path is specified and the value is not true, an existing Session ID Cookie will be deleted and no Session ID will be generated.
 
 #### Session ID Cookie Name
 In this field you can specify the name of your server-side Session ID cookie.
@@ -80,7 +83,8 @@ With the HttpOnly Flag enabled, you make sure, that the cookies can not be read 
 #### SameSite Attribute
 This attribute defines whether the cookies are sent with cross-site requests.
 
-### Extend Cookie Lifetimes Server-Side
+### Cookie Settings
+#### Extend Cookie Lifetimes Server-Side
 You can define cookies here that you want to persist as long as possible. The JSON client will then extend their lifetimes server-side. This can be especially beneficial for client-side cookies used for device identification, which would otherwise be unstable due to privacy protections. There's no need to include the device and session ID cookies from the JSON client here, as they are created server-side anyway.
 
 ### CORS Settings
