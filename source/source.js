@@ -40,12 +40,13 @@ const log = msg => {
 };
 
 const validateOrigin = () => {
-    // if no origin is present, skip origin validation
-    if (!origin) {
+    // if no origin is present or all origins are allowed, skip origin validation
+    // ('*' is not a valid RegEx, so it must be handled before createRegex is called)
+    if (!origin || data.allowedOrigins === '*') {
         return true;
     }
     const allowedOriginsRegEx = createRegex(data.allowedOrigins, 'i');
-    return data.allowedOrigins === '*' || (allowedOriginsRegEx !== null && testRegex(allowedOriginsRegEx, origin));
+    return allowedOriginsRegEx !== null && testRegex(allowedOriginsRegEx, origin);
 };
 
 // check if client should claim the request
