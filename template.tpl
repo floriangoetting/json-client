@@ -1036,18 +1036,33 @@ if (requestMethod === 'POST') {
         return existingSessionId;
     };
 
+    // new ids are only generated when needed and are shared by all events of the request
+    const getGeneratedDeviceId = () => {
+        if (!generatedDeviceId) {
+            generatedDeviceId = generateUUIDv4();
+        }
+        return generatedDeviceId;
+    };
+
+    const getGeneratedSessionId = () => {
+        if (!generatedSessionId) {
+            generatedSessionId = getTimestampMillis();
+        }
+        return generatedSessionId;
+    };
+
     const eventPromises = events.map((event) => {
         // only set device id if activated in the JSON client settings
         if (enableDeviceId) {
             const deviceIdCookieEnabled = deviceIdConsentPath ? getValueByPath(event, deviceIdConsentPath) : true;
-            if (deviceIdCookieEnabled && !generatedDeviceId) {
-                generatedDeviceId = generateUUIDv4();
-            }
             const existingConsentedDeviceId = deviceIdCookieEnabled ? getExistingDeviceId() : null;
-            const candidateDeviceId = deviceIdCookieEnabled ? generatedDeviceId : data.cookielessDeviceId;
 
-            const selectedDeviceId = event.client_id || existingConsentedDeviceId || candidateDeviceId;
-            // prefer client_id from event data, then existing cookie with consent, then consent-based candidate id
+            // prefer client_id from event data, then existing cookie with consent
+            let selectedDeviceId = event.client_id || existingConsentedDeviceId;
+            if (!selectedDeviceId) {
+                // otherwise use a new id with consent or the cookieless id without consent
+                selectedDeviceId = deviceIdCookieEnabled ? getGeneratedDeviceId() : data.cookielessDeviceId;
+            }
             if (selectedDeviceId) {
                 event.client_id = selectedDeviceId;
             }
@@ -1060,14 +1075,14 @@ if (requestMethod === 'POST') {
         // only set session id if activated in the JSON client settings
         if (enabledSessionId) {
             const sessionIdCookieEnabled = sessionIdConsentPath ? getValueByPath(event, sessionIdConsentPath) : true;
-            if (sessionIdCookieEnabled && !generatedSessionId) {
-                generatedSessionId = getTimestampMillis();
-            }
             const existingConsentedSessionId = sessionIdCookieEnabled ? getExistingSessionId() : null;
-            const candidateSessionId = sessionIdCookieEnabled ? generatedSessionId : null;
 
-            const selectedSessionId = event.session_id || makeInteger(existingConsentedSessionId) || candidateSessionId;
-            // prefer session_id from event data, then existing cookie with consent, then consent-based candidate id
+            // prefer session_id from event data, then existing cookie with consent
+            let selectedSessionId = event.session_id || makeInteger(existingConsentedSessionId);
+            if (!selectedSessionId && sessionIdCookieEnabled) {
+                // otherwise use a new id, but only with consent
+                selectedSessionId = getGeneratedSessionId();
+            }
             if (selectedSessionId) {
                 event.session_id = selectedSessionId;
             }
