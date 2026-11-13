@@ -1,6 +1,8 @@
 homepage: "https://www.floriangoetting.de"
 documentation: "https://github.com/floriangoetting/json-client"
 versions:
+  - sha: 1cc33b6df202d9f1a3daa7289022074648fcad1c
+    changeNotes: New device and session IDs are now only generated when they are actually needed, instead of on every request with consent. No functional changes.
   - sha: 422a91be41bf5065f7c813565ae9221061d36b7e
     changeNotes: Consent-based device and session IDs. If a Path to Event Data for the cookie consent is configured and no consent is given, existing device and session ID cookies are deleted (only if present in the request) and not used anymore. The new optional field Cookieless Device ID can be used as client_id without consent. The device and session ID settings have been moved to the new group Device and Session Identifier Settings. Existing configurations keep working without changes.
   - sha: 4a19ace59569458cfd1473054772bf5a61dba2c5
