@@ -1,6 +1,8 @@
 homepage: "https://www.floriangoetting.de"
 documentation: "https://github.com/floriangoetting/json-client"
 versions:
+  - sha: 7d70543b98de5f1fcc1e478f3e2de2a2c5e00d3f
+    changeNotes: The RegEx creation is now skipped when allowedOrigins is '*'. This lead to a warning in the logs in the past. The behaviour is unchanged.
   - sha: 1cc33b6df202d9f1a3daa7289022074648fcad1c
     changeNotes: New device and session IDs are now only generated when they are actually needed, instead of on every request with consent. No functional changes.
   - sha: 422a91be41bf5065f7c813565ae9221061d36b7e
